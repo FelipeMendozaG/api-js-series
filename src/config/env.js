@@ -1,0 +1,10 @@
+module.exports={
+    port:process.env.PORT,
+    versionApi:process.env.VERSION_API,
+    database:process.env.DB_DATABASE,
+    username:process.env.DB_USERNAME,
+    password:process.env.DB_PASSWORD,
+    host:process.env.DB_HOST,
+    dialect:process.env.DB_DIALECT,
+    db_port:process.env.DB_PORT
+}

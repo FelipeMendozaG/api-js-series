@@ -1,10 +1,10 @@
 const { matchedData } = require("express-validator");
-const {business} = require("../models/index")
+const {busines} = require("../models/index")
 const { ResponseException, ResponseOk } = require("../utils/apiResponse")
 
 const get_all = async(req,res)=>{
     try{
-        const Mybusiness = await business.findAll();
+        const Mybusiness = await busines.findAll();
         ResponseOk(res,200,Mybusiness);
     }catch(err){
         console.log(err);

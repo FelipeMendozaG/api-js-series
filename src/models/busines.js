@@ -30,6 +30,7 @@ const Business = sequelize.define(
     },
     {
         timestamps:true,
+        tableName:'business'
     }
 );
 

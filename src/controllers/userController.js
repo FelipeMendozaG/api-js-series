@@ -66,7 +66,7 @@ const update=async(req,res)=>{
         });
         ResponseOk(res,200,await user.findByPk(id))
     }catch(err){
-        ResponseException(res,401,'ERROR-EXCEPTION-UPDATED')
+        ResponseException(res,500,'ERROR-EXCEPTION-UPDATED')
     }
 }
 module.exports = {get_all,authenticate,create,update}

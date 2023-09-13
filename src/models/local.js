@@ -1,5 +1,7 @@
 const {sequelize} = require('../config/database');
 const {DataTypes} = require('sequelize');
+const Business = require('./busines');
+const Type = require('./type');
 
 const Local = sequelize.define(
     'locals',
@@ -56,5 +58,8 @@ const Local = sequelize.define(
         timestamps:true,
     }
 );
+
+Local.belongsTo(Business,{foreignKey:'business_id'});
+Local.belongsTo(Type,{foreignKey:'type_ubication_id'});
 
 module.exports = Local;

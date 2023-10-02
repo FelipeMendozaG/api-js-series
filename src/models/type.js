@@ -1,6 +1,6 @@
 const {sequelize} = require('../config/database');
 const {DataTypes} = require('sequelize');
-const TypeGroup = require('../models/type_group')
+const TypeGroup = require('../models/type_group');
 //const Business = sequelize.define(
 const Type = sequelize.define(
     'types',
@@ -36,5 +36,5 @@ const Type = sequelize.define(
         timestamps:true,
     }
 );
-Type.hasOne(TypeGroup,{foreignKey:'id'});
+Type.belongsTo(TypeGroup,{foreignKey:'type_group_id'});
 module.exports = Type;

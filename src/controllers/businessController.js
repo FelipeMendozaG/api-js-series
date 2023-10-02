@@ -42,4 +42,14 @@ const changeStatus=async(req,res)=>{
         ResponseException(res,500,'ERROR-EXCEPTION-CHANGESTATUS');
     }
 }
-module.exports = {get_all,create,update,changeStatus}
+const search_ruc = async(req,res)=>{
+    try{
+        const {ruc} = req.params;
+        console.log(ruc);
+        ResponseOk(res,200,{})
+    }catch(err){
+        ResponseException(res,500,'SEARCH_RUC_NO_EXISTS');
+    }
+}
+
+module.exports = {get_all,create,update,changeStatus,search_ruc}

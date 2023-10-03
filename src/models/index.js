@@ -9,5 +9,6 @@ module.exports={
     serie:require('./serie'),
     type:require('./type'),
     type_group:require('./type_group'),
-    trade:require('./trade')
+    trade:require('./trade'),
+    trade_series:require('./trade_series')
 }

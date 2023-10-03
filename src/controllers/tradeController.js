@@ -42,4 +42,12 @@ const changeStatus=async(req,res)=>{
         ResponseException(res,500,'ERROR-EXCEPTION-CHANGESTATUS');
     }
 }
-module.exports = {get_all,create,update,changeStatus}
+const get_for_ruc=async(req,res)=>{
+    try{
+        ResponseOk(res,200,{});
+    }catch(err){
+        console.log(err);
+        ResponseException(res,500,'EXCEPTION_GET_FOR_RUC');
+    }
+}
+module.exports = {get_all,create,update,changeStatus,get_for_ruc}

@@ -7,6 +7,6 @@ routes.get('/',get_all);
 routes.post('/',validatorCreateBusiness,create);
 routes.put('/:id',validatorUpdateBusiness,update);
 routes.post('/status/:id',changeStatus);
-routes.get('/ruc/:ruc',search_ruc)
+routes.get('/ruc/:ruc',search_ruc);
 
 module.exports=routes

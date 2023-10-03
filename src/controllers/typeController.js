@@ -10,5 +10,13 @@ const get_all = async (req, res) => {
         ResponseException(res, 500, 'ERROR_EXCEPTION_GET_ALL');
     }
 }
+const get_ubication = async(req,res)=>{
+    try{
+        const MyUbication = await type.findAll({include:{model:type_group,where:{code:'TPUBI'}}})
+        ResponseOk(res,200,MyUbication);
+    }catch(err){
+        ResponseException(res,500,'ERROR_EXCEPTION_UBICATION_GET');
+    }
+}
 
-module.exports = { get_all }
+module.exports = { get_all, get_ubication}

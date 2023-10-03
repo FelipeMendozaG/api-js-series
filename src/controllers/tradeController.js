@@ -44,7 +44,12 @@ const changeStatus=async(req,res)=>{
 }
 const get_for_ruc=async(req,res)=>{
     try{
-        ResponseOk(res,200,{});
+        ResponseOk(res,200,{
+            electronic_series_ncb:"F001",
+            electronic_series_be:"b001",
+            electronic_series_ncf:"c001",
+            electronic_series_fe:"F001"
+        });
     }catch(err){
         console.log(err);
         ResponseException(res,500,'EXCEPTION_GET_FOR_RUC');

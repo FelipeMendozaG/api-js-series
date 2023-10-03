@@ -1,11 +1,11 @@
 const { matchedData } = require("express-validator");
-const {trade_series} = require("../models/index")
-const { ResponseException, ResponseOk } = require("../utils/apiResponse")
+const {trade_series} = require("../models/index");
+const { ResponseException, ResponseOk } = require("../utils/apiResponse");
 
 const get_all = async(req,res)=>{
     try{
-        const MyTrade_serires = await trade_series.findAll();
-        ResponseOk(res,200,MyTrade_serires);
+        const MyTrade_series = await trade_series.findAll();
+        ResponseOk(res,200,MyTrade_series);
     }catch(err){
         console.log(err);
         ResponseException(res,500,'ERROR_GET_ALL_BUSNESS')
@@ -42,12 +42,15 @@ const changeStatus=async(req,res)=>{
         ResponseException(res,500,'ERROR-EXCEPTION-CHANGESTATUS');
     }
 }
-const get_for_ruc=async(req,res)=>{
+const get_for_ruc=async(res)=>{
     try{
-        ResponseOk(res,200,{});
+        const {ruc} = req.params;
+        const MyTrade_series=await trade_series.findOne({where:{ruc}});
+        ResponseOk(res,200, MyTrade_series);
     }catch(err){
         console.log(err);
         ResponseException(res,500,'EXCEPTION_GET_FOR_RUC');
     }
 }
+
 module.exports = {get_all,create,update,changeStatus,get_for_ruc}

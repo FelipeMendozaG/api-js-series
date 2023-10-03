@@ -11,6 +11,7 @@ const get_all = async(req,res)=>{
         ResponseException(res,500,'ERROR_GET_ALL_BUSNESS')
     }
 }
+
 const create = async(req,res)=>{
     try{
         let body = matchedData(req);

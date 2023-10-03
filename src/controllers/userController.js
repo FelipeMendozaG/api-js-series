@@ -6,6 +6,11 @@ const { matchedData } = require('express-validator');
 const { compare } = require('bcryptjs');
 const get_all=async(req,res)=>{
     try{
+        const {id} = req.params;
+        if(id != undefined){
+            ResponseOk(res,200,await user.findByPk(parseInt(id)));
+            return ;
+        }
         const ModelUser = await user.findAll();
         ResponseOk(res,200,ModelUser);
     }catch(err){

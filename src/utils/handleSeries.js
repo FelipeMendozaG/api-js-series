@@ -6,8 +6,13 @@ const SerieCorrelative = (codigo) => {
     // Incrementar el número en 1
     const nuevoNumero = numeroParte + 1;
 
-    // Formatear el nuevo código con ceros a la izquierda si es necesario
-    const nuevoCodigo = letraParte + nuevoNumero.toString().padStart(numeroParte.toString().length, '0');
+    // Obtener la longitud del número original
+    const longitudNumeroOriginal = codigo.match(/\d+/)[0].length;
 
+    // Formatear el nuevo número con ceros a la izquierda y construir el nuevo código
+    const nuevoCodigo = letraParte + nuevoNumero.toString().padStart(longitudNumeroOriginal, '0');
+    
     return nuevoCodigo;
 }
+
+module.exports = { SerieCorrelative }

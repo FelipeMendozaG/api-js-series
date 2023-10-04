@@ -42,7 +42,7 @@ const changeStatus=async(req,res)=>{
         ResponseException(res,500,'ERROR-EXCEPTION-CHANGESTATUS');
     }
 }
-const get_for_ruc=async(res)=>{
+const get_for_ruc=async(req,res)=>{
     try{
         const {ruc} = req.params;
         const MyTrade_series=await trade_series.findOne({where:{ruc}});

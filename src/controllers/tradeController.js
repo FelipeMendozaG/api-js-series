@@ -5,8 +5,15 @@ const {SerieCorrelative} = require("../utils/handleSeries")
 
 const get_all = async (req, res) => {
     try {
+        const {query} = req;
+        if(Object.keys(query).length > 0){
+            const MyTrade = await trade.findAll({where:{ruc:query.param}});
+            ResponseOk(res, 200, MyTrade);
+            return ;
+        }
         const MyTrade = await trade.findAll();
         ResponseOk(res, 200, MyTrade);
+        return ;
     } catch (err) {
         console.log(err);
         ResponseException(res, 500, 'ERROR_GET_ALL_BUSNESS')
@@ -34,6 +41,7 @@ const create = async (req, res) => {
         }
         await trade_series.update({...tradeObj,business_name},{where:{ruc}});
         ResponseOk(res, 201, MyTrade);
+        return ;
     } catch (err) {
         console.log(err);
         ResponseException(res, 500, 'ERROR_EXCEPTION_CREATE_BUSINESS')

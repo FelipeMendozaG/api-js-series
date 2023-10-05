@@ -24,7 +24,7 @@ const Trade = sequelize.define(
         },
         address:{
             type:DataTypes.STRING,
-            allowNull:true
+            allowNull:false
         },
         electronic_series_fe:{
             type:DataTypes.STRING,

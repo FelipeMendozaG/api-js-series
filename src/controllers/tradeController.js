@@ -1,5 +1,5 @@
 const { matchedData } = require("express-validator");
-const { trade, trade_series } = require("../models/index")
+const { trade, trade_series, license } = require("../models/index")
 const { ResponseException, ResponseOk } = require("../utils/apiResponse");
 const {SerieCorrelative} = require("../utils/handleSeries")
 
@@ -22,15 +22,25 @@ const get_all = async (req, res) => {
 
 const create = async (req, res) => {
     try {
+        const {type_license} = req.body;
         let body = matchedData(req);
         const MyTrade = await trade.create(body);
         //
-        const {ruc, business_name} = body;
+        const {ruc, business_name, license:mylicence} = body;
         const tradeObj = {
             electronic_series_fe:SerieCorrelative(body.electronic_series_fe),
             electronic_series_be:SerieCorrelative(body.electronic_series_be),
             electronic_series_ncf:SerieCorrelative(body.electronic_series_ncf),
             electronic_series_ncb:SerieCorrelative(body.electronic_series_ncb)
+        }
+        // GUARDAMOS O ACTUALIZAMOS LA LICENCIA
+        const Lic = await license.findOne({where:{code_license:mylicence}});
+        if(Lic === null){
+            await license.create({code_license:mylicence,is_manager:type_license,box_count:1});
+        }
+        if(type_license){
+            const MyTrade = await trade.findAll({where:{license:mylicence}});
+            await license.update({box_count:MyTrade.length,is_manager:type_license},{where:{code_license:mylicence}})
         }
         //
         const TradeSeries = await trade_series.findOne({where:{ruc}});
@@ -39,6 +49,7 @@ const create = async (req, res) => {
             ResponseOk(res,201,MyTrade);
             return ;
         }
+        //
         await trade_series.update({...tradeObj,business_name},{where:{ruc}});
         ResponseOk(res, 201, MyTrade);
         return ;
@@ -82,4 +93,18 @@ const get_for_ruc = async (req, res) => {
         ResponseException(res, 500, 'EXCEPTION_GET_FOR_RUC');
     }
 }
-module.exports = { get_all, create, update, changeStatus, get_for_ruc }
+
+const get_series_for_business = async(req,res)=>{
+    try{
+        const {ruc,col} = req.body;
+        let Myatributes = ['ruc','business_id','business_name','id','address','ubication','license']
+        const SeriesBusiness = await trade.findAll({where:{ruc},atributes:Myatributes} )
+        ResponseOk(res,200,SeriesBusiness);
+        return ;
+    }catch(err){
+        console.log(err);
+        ResponseException(res,500,'EXCEPTION_GET_SERIES');
+    }
+};
+
+module.exports = { get_all, create, update, changeStatus, get_for_ruc, get_series_for_business}

@@ -10,5 +10,6 @@ module.exports={
     type:require('./type'),
     type_group:require('./type_group'),
     trade:require('./trade'),
-    trade_series:require('./trade_series')
+    trade_series:require('./trade_series'),
+    license:require('./licences')
 }

@@ -18,5 +18,15 @@ const get_ubication = async(req,res)=>{
         ResponseException(res,500,'ERROR_EXCEPTION_UBICATION_GET');
     }
 }
+const get_document = async(req,res)=>{
+    try{
+        const document = await type.findAll({include:[{model:type_group,where:{code:'TPDOC'} }]})
+        ResponseOk(res,200,document);
+        return ;
+    }catch(err){
+        console.log(err);
+        ResponseException(res,500,'EXCEPCION_GET_DOCUMENT');
+    }
+}
 
-module.exports = { get_all, get_ubication}
+module.exports = { get_all, get_ubication,get_document}

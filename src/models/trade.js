@@ -18,6 +18,14 @@ const Trade = sequelize.define(
             type:DataTypes.STRING,
             allowNull:false
         },
+        license:{
+            type:DataTypes.STRING,
+            allowNull:false
+        },
+        ubication:{
+            type:DataTypes.STRING,
+            allowNull:false
+        },
         trade_business:{
             type:DataTypes.STRING,
             allowNull:false

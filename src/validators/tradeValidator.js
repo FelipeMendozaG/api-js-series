@@ -14,6 +14,33 @@ const validatorCreateTrade = [
     check('trade_business')
         .exists().withMessage('Ingresar Negocio')
         .notEmpty().withMessage("El nombre del negocio no puede estar vacio"),
+    check("sale_organization")
+        .exists().withMessage("El valor de sale_organization debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("channel")
+        .exists().withMessage("El valor de channel debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("sector")
+        .exists().withMessage("El valor de sector debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("debtor")
+        .exists().withMessage("El valor de debtor debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("denomination")
+        .exists().withMessage("El valor de denomination debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("center")
+        .exists().withMessage("El valor de center debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("center_charity")
+        .exists().withMessage("El valor de center_charity debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("anydesk")
+        .exists().withMessage("El valor de anydesk debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("attached_code")
+        .exists().withMessage("El valor de attached_code debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
     check('electronic_series_fe')
         .exists().withMessage('Ingresar serie Electronica FE')
         .notEmpty().withMessage("La serie electronica de la factura no puede estar vacio")
@@ -99,11 +126,13 @@ const validatorUpdateTrade = [
         .exists().withMessage('Ingresar serie Electronica FE')
         .notEmpty().withMessage("La serie electronica de la factura no puede estar vacio")
         .custom(async (value, { req }) => {
-            const { ruc } = req.body;
+            const { ruc, is_duplicate } = req.body;
             const {id} = req.params;
-            const Serie = await trade.findOne({ where: { ruc, electronic_series_fe: value, id:{[Op.ne]:id}} });
-            if (Serie !== null) {
-                throw new Error('Esta serie de factura electronica esta siendo utilizada');
+            if(is_duplicate === false){
+                const Serie = await trade.findOne({ where: { ruc, electronic_series_fe: value, id:{[Op.ne]:id}} });
+                if (Serie !== null) {
+                    throw new Error('Esta serie de factura electronica esta siendo utilizada');
+                }
             }
             return true;
         })
@@ -112,11 +141,13 @@ const validatorUpdateTrade = [
         .exists().withMessage('Ingresar serie Electronica BE')
         .notEmpty().withMessage("La serie electronica de la factura no puede estar vacio")
         .custom(async (value, { req }) => {
-            const { ruc } = req.body;
+            const { ruc, is_duplicate } = req.body;
             const {id} = req.params;
-            const Serie = await trade.findOne({ where: { ruc, electronic_series_be: value, id:{[Op.ne]:id}} });
-            if (Serie !== null) {
-                throw new Error('Esta serie de boleta electronica esta siendo utilizada');
+            if(is_duplicate === false){
+                const Serie = await trade.findOne({ where: { ruc, electronic_series_be: value, id:{[Op.ne]:id}} });
+                if (Serie !== null) {
+                    throw new Error('Esta serie de boleta electronica esta siendo utilizada');
+                }
             }
             return true;
         })
@@ -125,11 +156,13 @@ const validatorUpdateTrade = [
         .exists().withMessage('Ingresar serie Electronica NC F')
         .notEmpty().withMessage("La serie electronica de la factura no puede estar vacio")
         .custom(async (value, { req }) => {
-            const { ruc } = req.body;
+            const { ruc, is_duplicate} = req.body;
             const {id} = req.params;
-            const Serie = await trade.findOne({ where: { ruc, electronic_series_ncf: value, id:{[Op.ne]:id}} });
-            if (Serie !== null) {
-                throw new Error('Esta serie de nota de credito factura esta siendo utilizada');
+            if(is_duplicate === false){
+                const Serie = await trade.findOne({ where: { ruc, electronic_series_ncf: value, id:{[Op.ne]:id}} });
+                if (Serie !== null) {
+                    throw new Error('Esta serie de nota de credito factura esta siendo utilizada');
+                }
             }
             return true;
         })
@@ -138,11 +171,13 @@ const validatorUpdateTrade = [
         .exists().withMessage('Ingresar serie Electronica NC B')
         .notEmpty().withMessage("La serie electronica de la factura no puede estar vacio")
         .custom(async (value, { req }) => {
-            const { ruc } = req.body;
+            const { ruc, is_duplicate } = req.body;
             const {id} = req.params;
-            const Serie = await trade.findOne({ where: { ruc, electronic_series_ncb: value, id:{[Op.ne]:id}}});
-            if (Serie !== null) {
-                throw new Error('Esta serie de nota de debito boleta esta siendo utilizada');
+            if(is_duplicate === false){
+                const Serie = await trade.findOne({ where: { ruc, electronic_series_ncb: value, id:{[Op.ne]:id}}});
+                if (Serie !== null) {
+                    throw new Error('Esta serie de nota de debito boleta esta siendo utilizada');
+                }
             }
             return true;
         })

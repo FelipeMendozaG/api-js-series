@@ -1,8 +1,7 @@
 const {sequelize} = require('../config/database');
 const {DataTypes} = require('sequelize');
-
-const Trade = sequelize.define(
-    'trade',
+const TradeLog = sequelize.define(
+    'trade_logs',
     {
         id:{
             primaryKey:true,
@@ -33,6 +32,10 @@ const Trade = sequelize.define(
         address:{
             type:DataTypes.STRING,
             allowNull:false
+        },
+        duplicate_series:{
+            type:DataTypes.BOOLEAN,
+            allowNull:true
         },
         sale_organization:{
             type:DataTypes.STRING,
@@ -70,6 +73,10 @@ const Trade = sequelize.define(
             type:DataTypes.STRING,
             allowNull:false
         },
+        trade_id:{
+            type:DataTypes.INTEGER,
+            allowNull:false
+        },
         electronic_series_fe:{
             type:DataTypes.STRING,
             allowNull:true
@@ -86,12 +93,11 @@ const Trade = sequelize.define(
             type:DataTypes.STRING,
             allowNull:true
         }
-
     },
     {
         timestamps:true,
-        tableName:'trade'
+        tableName:'trade_logs'
     }
 );
 
-module.exports = Trade;
+module.exports = TradeLog;

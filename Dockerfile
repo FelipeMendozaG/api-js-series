@@ -6,7 +6,7 @@ WORKDIR /app/api
 
 # Copia los archivos de tu aplicación
 #COPY .env .env
-#COPY . .
+COPY . .
 
 # Instala cualquier dependencia de tu aplicación
 COPY package*.json ./

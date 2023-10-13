@@ -25,7 +25,7 @@ const get_all = async (req, res) => {
 const get_for_license = async(req, res)=>{
     try{
         const { code_license:license } = req.body;
-        const tradelist = await trade.findAll({where:{license}});
+        const tradelist = await trade_logs.findAll({where:{license}});
         return ResponseOk(res,200,tradelist);
     }catch(err){
         return ResponseException(res,500,'EXCEPTION_GET_FOR_LICENSE');
@@ -80,7 +80,7 @@ const updated = async (req, res) => {
         let body = matchedData(req);
         await trade.update(body, { where: { id } });
         if (is_duplicate === true) {
-            body = { ...body, duplicate_series: true };
+            body = { ...body, duplicate_series: true, trade_id:id };
             await trade_logs.create(body);
         }
         const {license:code_license} = body; 
@@ -94,6 +94,7 @@ const updated = async (req, res) => {
         await license.update({code_license,box_count:boxcount.length,is_manager: (boxcount.length > 1 ? true : false) },{where:{id:license_id}});
         return ResponseOk(res, 202, await trade.findByPk(id));
     } catch (err) {
+        console.log(err);
         return ResponseException(res, 500, 'ERROR_UPDATE_BUSINESS')
     }
 }
@@ -321,4 +322,14 @@ const ImportExcel = async (req, res) => {
     }
 }
 
-module.exports = { get_all, create, updated, changeStatus, get_for_ruc, get_series_for_business, exportExcel, ImportExcel, upload, get_for_license}
+const get_all_logs = async(req,res)=>{
+    try{
+        const { trade_id } = req.body;
+        const tradelogs = await trade_logs.findAll({where:{trade_id}})
+        return ResponseOk(res,200,tradelogs)
+    }catch(err){
+        return ResponseException(res,500,'EXCEPTION_GET_ALL_LOGS')
+    }
+}
+
+module.exports = { get_all, create, updated, changeStatus, get_for_ruc, get_series_for_business, exportExcel, ImportExcel, upload, get_for_license, get_all_logs}

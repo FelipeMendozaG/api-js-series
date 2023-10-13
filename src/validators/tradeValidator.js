@@ -122,6 +122,33 @@ const validatorUpdateTrade = [
     check('trade_business')
         .exists().withMessage('Ingresar Negocio')
         .notEmpty().withMessage("El nombre del negocio no puede estar vacio"),
+    check("sale_organization")
+        .exists().withMessage("El valor de sale_organization debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("channel")
+        .exists().withMessage("El valor de channel debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("sector")
+        .exists().withMessage("El valor de sector debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("debtor")
+        .exists().withMessage("El valor de debtor debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("denomination")
+        .exists().withMessage("El valor de denomination debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("center")
+        .exists().withMessage("El valor de center debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("center_charity")
+        .exists().withMessage("El valor de center_charity debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("anydesk")
+        .exists().withMessage("El valor de anydesk debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("attached_code")
+        .exists().withMessage("El valor de attached_code debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
     check('electronic_series_fe')
         .exists().withMessage('Ingresar serie Electronica FE')
         .notEmpty().withMessage("La serie electronica de la factura no puede estar vacio")

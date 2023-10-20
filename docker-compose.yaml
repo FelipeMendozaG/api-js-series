@@ -8,22 +8,12 @@ services:
     environment:
       - PORT=9000
       - VERSION_API=v1
-      - DB_HOST=localhost
+      - DB_HOST=MyDB
       - DB_USERNAME=root
       - DB_PASSWORD=chepita
       - DB_DATABASE=BD_SERIES
       - DB_DIALECT=mysql
-      - DB_PORT=3307
+      - DB_PORT=3306
       - JWT_SECRET=API_EWONG
     ports:
       - "9000:9000"
-    depends_on:
-      - db
-
-  db:
-    image: mysql:8.0-debian
-    environment:
-      - MYSQL_ROOT_PASSWORD=chepita
-      - MYSQL_DATABASE=BD_SERIES
-    ports:
-      - 3307:3306

@@ -1,5 +1,7 @@
 const {sequelize} = require('../config/database');
 const {DataTypes} = require('sequelize');
+const License = require('./licences');
+const Type = require('./type');
 
 const Trade = sequelize.define(
     'trade',
@@ -18,13 +20,21 @@ const Trade = sequelize.define(
             type:DataTypes.STRING,
             allowNull:false
         },
-        license:{
-            type:DataTypes.STRING,
-            allowNull:false
+        licence_id:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            references:{
+                model:License,
+                key:'id'
+            }
         },
-        ubication:{
-            type:DataTypes.STRING,
-            allowNull:false
+        ubication_id:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            references:{
+                model:Type,
+                key:'id'
+            }
         },
         trade_business:{
             type:DataTypes.STRING,
@@ -34,37 +44,69 @@ const Trade = sequelize.define(
             type:DataTypes.STRING,
             allowNull:false
         },
-        sale_organization:{
-            type:DataTypes.STRING,
-            allowNull:false
+        sale_organization_id:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            references:{
+                model:Type,
+                key:'id'
+            }
         },
-        channel:{
+        channel_id:{
             type:DataTypes.STRING,
-            allowNull:false
+            allowNull:false,
+            references:{
+                model:Type,
+                key:'id'
+            }
         },
         sector:{
             type:DataTypes.STRING,
-            allowNull:false
+            allowNull:false,
         },
-        debtor:{
-            type:DataTypes.STRING,
-            allowNull:false
+        debtor_id:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            references:{
+                model:Type,
+                key:'id'
+            }
         },
         denomination:{
             type:DataTypes.STRING,
             allowNull:false
         },
-        center:{
-            type:DataTypes.STRING,
-            allowNull:false
+        center_id:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            references:{
+                model:Type,
+                key:'id'
+            }
         },
-        center_charity:{
-            type:DataTypes.STRING,
-            allowNull:false
+        center_charity_id:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            references:{
+                model:Type,
+                key:'id'
+            }
         },
         anydesk:{
             type:DataTypes.STRING,
             allowNull:false
+        },
+        host:{
+            type:DataTypes.STRING,
+            allowNull:true,
+        },
+        ip:{
+            type:DataTypes.STRING,
+            allowNull:true
+        },
+        number_indentifier:{
+            type:DataTypes.STRING,
+            allowNull:true
         },
         attached_code:{
             type:DataTypes.STRING,
@@ -93,5 +135,13 @@ const Trade = sequelize.define(
         tableName:'trade'
     }
 );
+
+Trade.belongsTo(License,{foreignKey:'licence_id',as:'license'});
+Trade.belongsTo(Type,{foreignKey:'channel_id',as:'channel'});
+Trade.belongsTo(Type,{foreignKey:'center_id',as:'center'});
+Trade.belongsTo(Type,{foreignKey:'ubication_id', as:'ubication'});
+Trade.belongsTo(Type,{foreignKey:'debtor_id',as:'debtor'});
+Trade.belongsTo(Type,{foreignKey:'center_charity_id',as:'center_charity'})
+Trade.belongsTo(Type,{foreignKey:'sale_organization_id',as:'sale_organization'})
 
 module.exports = Trade;

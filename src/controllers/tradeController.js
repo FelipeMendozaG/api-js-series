@@ -1,5 +1,5 @@
 const { matchedData } = require("express-validator");
-const { trade, trade_series, license, trade_logs } = require("../models/index")
+const { trade, trade_series, license, trade_logs, type } = require("../models/index")
 const { ResponseException, ResponseOk, ResponseError } = require("../utils/apiResponse");
 const { SerieCorrelative } = require("../utils/handleSeries")
 const ExcelJS = require('exceljs');
@@ -9,26 +9,33 @@ const get_all = async (req, res) => {
     try {
         const { query } = req;
         if (Object.keys(query).length > 0) {
-            const MyTrade = await trade.findAll({ where: { ruc: query.param } });
-            ResponseOk(res, 200, MyTrade);
-            return;
+            const MyTrade = await trade.findAll({ where: { ruc: query.param }, include: [{ model: license }] });
+            return ResponseOk(res, 200, MyTrade);
         }
-        const MyTrade = await trade.findAll();
-        ResponseOk(res, 200, MyTrade);
-        return;
+        const MyTrade = await trade.findAll({ include: [
+            {model: license, as:'license'},
+            {model:type,as:'channel'},
+            {model:type,as:'center'},
+            {model:type,as:'ubication'},
+            {model:type,as:'debtor'},
+            {model:type,as:'center_charity'},
+            {model:type,as:'sale_organization'}
+            ]
+        });
+        return ResponseOk(res, 200, MyTrade);
     } catch (err) {
         console.log(err);
-        ResponseException(res, 500, 'ERROR_GET_ALL_BUSNESS')
+        return ResponseException(res, 500, 'ERROR_GET_ALL_BUSNESS')
     }
 }
 
-const get_for_license = async(req, res)=>{
-    try{
-        const { code_license:license } = req.body;
-        const tradelist = await trade_logs.findAll({where:{license}});
-        return ResponseOk(res,200,tradelist);
-    }catch(err){
-        return ResponseException(res,500,'EXCEPTION_GET_FOR_LICENSE');
+const get_for_license = async (req, res) => {
+    try {
+        const { code_license: license } = req.body;
+        const tradelist = await trade_logs.findAll({ where: { license } });
+        return ResponseOk(res, 200, tradelist);
+    } catch (err) {
+        return ResponseException(res, 500, 'EXCEPTION_GET_FOR_LICENSE');
     }
 }
 
@@ -36,40 +43,179 @@ const create = async (req, res) => {
     try {
         const { type_license, is_duplicate } = req.body;
         let body = matchedData(req);
-        const MyTrade = await trade.create(body);
+        // CREAMOS CAMPOS SI NO EXISTEN
+        const { __isNew__: isNewSale, ...objeSale } = body.sale_organization;
+        const { __isNew__: isNewChannel, ...objChannel } = body.channel
+        const { __isNew__: isNewDeb, ...objDeb } = body.debtor
+        const { __isNew__: isNewCent, ...objCent } = body.center
+        const { __isNew__: isNewLic, ...objLic } = body.license
+        const { __isNew__: isNewUbica, ...objUbic } = body.ubication
+        const { __isNew__: isNewCenterCharity, ...objCenterCharity } = body.center_charity
         //
-        await trade_logs.create({ ...body, duplicate_series: false });
-        // 
-        const { ruc, business_name, license: mylicence } = body;
+        const otherObj = {
+            sale_organization:{...objeSale},
+            channel:{...objChannel},
+            debtor:{...objDeb},
+            center:{...objCent},
+            licence:{...objLic},
+            ubication:{...objUbic},
+            center_charity:{...objCenterCharity}
+        }
+        if (isNewSale) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    name: objeSale.label,
+                    code: 'C-CREA',
+                    type_group_id: 4,
+                },
+                defaults: {
+                    code: 'C-CREA',
+                    name: objeSale.label,
+                    type_group_id: 4,
+                    is_active: true
+                }
+            })
+            otherObj.sale_organization = {...otherObj.sale_organization,value:id}
+        }
+        if (isNewChannel) {
+            const [{id}]= await type.findOrCreate({
+                where: {
+                    code: 'CH-CREA',
+                    name: objChannel.label,
+                    type_group_id: 6,
+                },
+                defaults: {
+                    code: 'CH-CREA',
+                    name: objChannel.label,
+                    type_group_id: 6,
+                    is_active: true
+                }
+            });
+            otherObj.channel = {...otherObj.channel, value:id};
+        }
+        if (isNewDeb) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    code: 'DEB-CREA',
+                    name: objDeb.label,
+                    type_group_id: 3,
+                },
+                defaults: {
+                    code: 'DEB-CREA',
+                    name: objDeb.label,
+                    type_group_id: 3,
+                    is_active: true
+                }
+            })
+            otherObj.debtor = {...otherObj.debtor,value:id}
+        }
+        if (isNewCent) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    code: 'CENT-CREA',
+                    name: objCent.label,
+                    type_group_id: 5,
+                },
+                defaults: {
+                    code: 'CENT-CREA',
+                    name: objCent.label,
+                    type_group_id: 5,
+                    is_active: true
+                }
+            });
+            otherObj.center = {...otherObj.center,value:id}
+        }
+        if (isNewLic) {
+            // ESTO ES SOLO CUANDO ES UNA NUEVA LICENCIA
+            const [{id}] = await license.findOrCreate({
+                where: {
+                    code_license: ((objLic.label).split(' '))[0],
+                    is_manager: type_license ?? false
+                },
+                defaults: {
+                    code_license: ((objLic.label).split(' '))[0],
+                    box_count: 1,
+                    is_manager: type_license ?? false
+                }
+            });
+            otherObj.licence = {...otherObj.licence,value:id}
+        }
+        if (isNewUbica) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    code: 'UBI-CREA',
+                    name: objUbic.label,
+                    type_group_id: 2,
+                },
+                defaults: {
+                    code: 'UBI-CREA',
+                    name: objUbic.label,
+                    type_group_id: 2,
+                    is_active: true
+                }
+            });
+            otherObj.ubication = {...otherObj.ubication,value:id}
+        }
+        if (isNewCenterCharity) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    code: 'CENT-CHARI-CREA',
+                    name: objCenterCharity.label,
+                    type_group_id: 7,
+                },
+                defaults: {
+                    code: 'CENT-CHARI-CREA',
+                    name: objCenterCharity.label,
+                    type_group_id: 7,
+                    is_active: true
+                }
+            })
+            otherObj.center_charity = {...otherObj.center_charity,value:id}
+        }
+        //
+        body = {
+            ...body,
+            sale_organization_id: otherObj.sale_organization.value,
+            channel_id: otherObj.channel.value,
+            debtor_id: otherObj.debtor.value,
+            center_id: otherObj.center.value,
+            center_charity_id: otherObj.center_charity.value,
+            licence_id: otherObj.licence.value,
+            ubication_id: otherObj.ubication.value,
+
+            sale_organization:otherObj.sale_organization.label,
+            channel:otherObj.channel.label,
+            debtor:otherObj.debtor.label,
+            center:otherObj.center.label,
+            center_charity:otherObj.center_charity.label,
+            license:otherObj.licence.label,
+            ubication:otherObj.ubication.label,
+
+        };
+        const MyTrade = await trade.create(body);
+        await trade_logs.create({ ...body, duplicate_series: false, trade_id: MyTrade.id });
+        const { ruc, business_name,licence_id } = body;
         const tradeObj = {
             electronic_series_fe: SerieCorrelative(body.electronic_series_fe),
             electronic_series_be: SerieCorrelative(body.electronic_series_be),
             electronic_series_ncf: SerieCorrelative(body.electronic_series_ncf),
             electronic_series_ncb: SerieCorrelative(body.electronic_series_ncb)
         }
-        // GUARDAMOS O ACTUALIZAMOS LA LICENCIA
-        const Lic = await license.findOne({ where: { code_license: mylicence } });
-        if (Lic === null) {
-            await license.create({ code_license: mylicence, is_manager: type_license, box_count: 1 });
-        }
+        //ACTUALIZAMOS LA LICENCIA
         if (type_license) {
-            const MyTrade = await trade.findAll({ where: { license: mylicence } });
-            await license.update({ box_count: MyTrade.length, is_manager: type_license }, { where: { code_license: mylicence } })
+            const MyTrade = await trade.findAll({ where: { licence_id } });
+            await license.update({ box_count: MyTrade.length, is_manager: type_license }, { where: { id:licence_id } })
         }
-        //
         const TradeSeries = await trade_series.findOne({ where: { ruc } });
         if (TradeSeries == null || TradeSeries == undefined) {
             await trade_series.create({ ...tradeObj, ruc, business_name });
-            ResponseOk(res, 201, MyTrade);
-            return;
+            return ResponseOk(res, 201, MyTrade);
         }
-
         await trade_series.update({ ...tradeObj, business_name }, { where: { ruc } });
-        ResponseOk(res, 201, MyTrade);
-        return;
+        return ResponseOk(res, 201, MyTrade);
     } catch (err) {
         console.log(err);
-        ResponseException(res, 500, 'ERROR_EXCEPTION_CREATE_BUSINESS')
+        return ResponseException(res, 500, 'ERROR_EXCEPTION_CREATE_BUSINESS')
     }
 }
 
@@ -78,20 +224,169 @@ const updated = async (req, res) => {
         const { is_duplicate } = req.body;
         const { id } = req.params;
         let body = matchedData(req);
-        await trade.update(body, { where: { id } });
+        const { __isNew__: isNewSale, ...objeSale } = body.sale_organization;
+        const { __isNew__: isNewChannel, ...objChannel } = body.channel
+        const { __isNew__: isNewDeb, ...objDeb } = body.debtor
+        const { __isNew__: isNewCent, ...objCent } = body.center
+        const { __isNew__: isNewLic, ...objLic } = body.license
+        const { __isNew__: isNewUbica, ...objUbic } = body.ubication
+        const { __isNew__: isNewCenterCharity, ...objCenterCharity } = body.center_charity
+
+        const otherObj = {
+            sale_organization:{...objeSale},
+            channel:{...objChannel},
+            debtor:{...objDeb},
+            center:{...objCent},
+            licence:{...objLic},
+            ubication:{...objUbic},
+            center_charity:{...objCenterCharity}
+        }
+        if (isNewSale) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    name: objeSale.label,
+                    code: 'C-CREA',
+                    type_group_id: 4,
+                },
+                defaults: {
+                    code: 'C-CREA',
+                    name: objeSale.label,
+                    type_group_id: 4,
+                    is_active: true
+                }
+            })
+            otherObj.sale_organization = {...otherObj.sale_organization,value:id}
+        }
+        if (isNewChannel) {
+            const [{id}]= await type.findOrCreate({
+                where: {
+                    code: 'CH-CREA',
+                    name: objChannel.label,
+                    type_group_id: 6,
+                },
+                defaults: {
+                    code: 'CH-CREA',
+                    name: objChannel.label,
+                    type_group_id: 6,
+                    is_active: true
+                }
+            });
+            otherObj.channel = {...otherObj.channel, value:id};
+        }
+        if (isNewDeb) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    code: 'DEB-CREA',
+                    name: objDeb.label,
+                    type_group_id: 3,
+                },
+                defaults: {
+                    code: 'DEB-CREA',
+                    name: objDeb.label,
+                    type_group_id: 3,
+                    is_active: true
+                }
+            })
+            otherObj.debtor = {...otherObj.debtor,value:id}
+        }
+        if (isNewCent) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    code: 'CENT-CREA',
+                    name: objCent.label,
+                    type_group_id: 5,
+                },
+                defaults: {
+                    code: 'CENT-CREA',
+                    name: objCent.label,
+                    type_group_id: 5,
+                    is_active: true
+                }
+            });
+            otherObj.center = {...otherObj.center,value:id}
+        }
+        if (isNewLic) {
+            // ESTO ES SOLO CUANDO ES UNA NUEVA LICENCIA
+            const [{id,code_license}] = await license.findOrCreate({
+                where: {
+                    code_license: ((objLic.label).split(' '))[0],
+                    is_manager: type_license ?? false
+                },
+                defaults: {
+                    code_license: ((objLic.label).split(' '))[0],
+                    box_count: 1,
+                    is_manager: type_license ?? false
+                }
+            });
+            otherObj.licence = {...otherObj.licence,value:id, label:code_license}
+        }
+        if (isNewUbica) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    code: 'UBI-CREA',
+                    name: objUbic.label,
+                    type_group_id: 2,
+                },
+                defaults: {
+                    code: 'UBI-CREA',
+                    name: objUbic.label,
+                    type_group_id: 2,
+                    is_active: true
+                }
+            });
+            otherObj.ubication = {...otherObj.ubication,value:id}
+        }
+        if (isNewCenterCharity) {
+            const [{id}] = await type.findOrCreate({
+                where: {
+                    code: 'CENT-CHARI-CREA',
+                    name: objCenterCharity.label,
+                    type_group_id: 7,
+                },
+                defaults: {
+                    code: 'CENT-CHARI-CREA',
+                    name: objCenterCharity.label,
+                    type_group_id: 7,
+                    is_active: true
+                }
+            })
+            otherObj.center_charity = {...otherObj.center_charity,value:id}
+        }
+
+        body = {
+            ...body,
+            sale_organization_id: otherObj.sale_organization.value,
+            channel_id: otherObj.channel.value,
+            debtor_id: otherObj.debtor.value,
+            center_id: otherObj.center.value,
+            center_charity_id: otherObj.center_charity.value,
+            licence_id: otherObj.licence.value,
+            ubication_id: otherObj.ubication.value,
+
+            sale_organization:otherObj.sale_organization.label,
+            channel:otherObj.channel.label,
+            debtor:otherObj.debtor.label,
+            center:otherObj.center.label,
+            center_charity:otherObj.center_charity.label,
+            license:((otherObj.licence.label).split(' '))[0],
+            ubication:otherObj.ubication.label,
+
+        };
+        console.log(body);
+        /* await trade.update(body, { where: { id } });
         if (is_duplicate === true) {
-            body = { ...body, duplicate_series: true, trade_id:id };
+            body = { ...body, duplicate_series: true, trade_id: id };
             await trade_logs.create(body);
         }
-        const {license:code_license} = body; 
-        const lic = await license.findOne({where:{code_license}});
-        if(lic === null){
-            await license.create({code_license,box_count:1,is_manager:false});
-            return ResponseOk(res,202,await trade.findByPk(id));
+        const { license: code_license } = body;
+        const lic = await license.findOne({ where: { code_license } });
+        if (lic === null) {
+            await license.create({ code_license, box_count: 1, is_manager: false });
+            return ResponseOk(res, 202, await trade.findByPk(id));
         }
-        const {id:license_id} = lic;
-        const boxcount = await trade.findAll({where:{license:code_license}})
-        await license.update({code_license,box_count:boxcount.length,is_manager: (boxcount.length > 1 ? true : false) },{where:{id:license_id}});
+        const { id: license_id } = lic;
+        const boxcount = await trade.findAll({ where: { license: code_license } })
+        await license.update({ code_license, box_count: boxcount.length, is_manager: (boxcount.length > 1 ? true : false) }, { where: { id: license_id } }); */
         return ResponseOk(res, 202, await trade.findByPk(id));
     } catch (err) {
         console.log(err);
@@ -282,36 +577,36 @@ const ImportExcel = async (req, res) => {
 
             return excelData;
         });
-        const data = dataExcel.filter( (item,index)=>{
-            if(index !== 0){
+        const data = dataExcel.filter((item, index) => {
+            if (index !== 0) {
                 return item;
             }
-        } );
+        });
         // PROCESO DE GUARDADO DE INFORMACION
-        for(let item of data){
+        for (let item of data) {
             const bodyparan = {
                 business_name: item["RAZON SOCIAL"],
-                ruc:item.RUC,
-                ubication:item.UBICACION ?? '',
-                address:item.DIRECCION ?? '',
-                channel:item.CANAL ?? '',
-                sector:item.SECTOR ?? '',
-                license:item.LICENCIA ?? '',
-                trade_business:item.NEGOCIO,
-                sale_organization:item["ORGANIZACION DE VENTA"] ?? '',
-                debtor:item.DEUDOR ?? '',
-                denomination:item.DENOMINACION ?? '',
-                center:item.CENTRO ?? '',
-                center_charity:item["CENTRO BENEFICO"] ?? '',
-                anydesk:item.ANYDESK ?? '',
-                attached_code:item["CODIGO ANEXO"] ?? '',
-                electronic_series_fe:item["SERIE ELECTRONICA FE"],
-                electronic_series_be:item["SERIE ELECTRONICA BE"],
-                electronic_series_ncf:item["SERIE ELECTRONICA NCF"],
-                electronic_series_ncb:item["SERIE ELECTRONICA NCB"]
+                ruc: item.RUC,
+                ubication: item.UBICACION ?? '',
+                address: item.DIRECCION ?? '',
+                channel: item.CANAL ?? '',
+                sector: item.SECTOR ?? '',
+                license: item.LICENCIA ?? '',
+                trade_business: item.NEGOCIO,
+                sale_organization: item["ORGANIZACION DE VENTA"] ?? '',
+                debtor: item.DEUDOR ?? '',
+                denomination: item.DENOMINACION ?? '',
+                center: item.CENTRO ?? '',
+                center_charity: item["CENTRO BENEFICO"] ?? '',
+                anydesk: item.ANYDESK ?? '',
+                attached_code: item["CODIGO ANEXO"] ?? '',
+                electronic_series_fe: item["SERIE ELECTRONICA FE"],
+                electronic_series_be: item["SERIE ELECTRONICA BE"],
+                electronic_series_ncf: item["SERIE ELECTRONICA NCF"],
+                electronic_series_ncb: item["SERIE ELECTRONICA NCB"]
             };
-            const {id} = await trade.create(bodyparan);
-            await trade_logs.create({...bodyparan,trade_id:id,duplicate_series:false,is_active:true});
+            const { id } = await trade.create(bodyparan);
+            await trade_logs.create({ ...bodyparan, trade_id: id, duplicate_series: false, is_active: true });
         }
         await trade_logs.sequelize.query('CALL BD_SERIES.USP_GET_SERIES_FOR_TRADE() ')
         await trade_logs.sequelize.query('CALL BD_SERIES.USP_LOAD_BUSINESS() ')
@@ -322,14 +617,14 @@ const ImportExcel = async (req, res) => {
     }
 }
 
-const get_all_logs = async(req,res)=>{
-    try{
+const get_all_logs = async (req, res) => {
+    try {
         const { trade_id } = req.body;
-        const tradelogs = await trade_logs.findAll({where:{trade_id}})
-        return ResponseOk(res,200,tradelogs)
-    }catch(err){
-        return ResponseException(res,500,'EXCEPTION_GET_ALL_LOGS')
+        const tradelogs = await trade_logs.findAll({ where: { trade_id } })
+        return ResponseOk(res, 200, tradelogs)
+    } catch (err) {
+        return ResponseException(res, 500, 'EXCEPTION_GET_ALL_LOGS')
     }
 }
 
-module.exports = { get_all, create, updated, changeStatus, get_for_ruc, get_series_for_business, exportExcel, ImportExcel, upload, get_for_license, get_all_logs}
+module.exports = { get_all, create, updated, changeStatus, get_for_ruc, get_series_for_business, exportExcel, ImportExcel, upload, get_for_license, get_all_logs }

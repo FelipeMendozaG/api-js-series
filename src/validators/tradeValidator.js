@@ -16,25 +16,30 @@ const validatorCreateTrade = [
         .notEmpty().withMessage("El nombre del negocio no puede estar vacio"),
     check("sale_organization")
         .exists().withMessage("El valor de sale_organization debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato no es correcto"),
     check("channel")
         .exists().withMessage("El valor de channel debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato no es correcto"),
     check("sector")
         .exists().withMessage("El valor de sector debe existir")
         .notEmpty().withMessage("El [] no puede estar vacio"),
     check("debtor")
         .exists().withMessage("El valor de debtor debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato no es correcto"),
     check("denomination")
         .exists().withMessage("El valor de denomination debe existir")
         .notEmpty().withMessage("El [] no puede estar vacio"),
     check("center")
         .exists().withMessage("El valor de center debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato no es correcto"),
     check("center_charity")
         .exists().withMessage("El valor de center_charity debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato no es correcto"),
     check("anydesk")
         .exists().withMessage("El valor de anydesk debe existir")
         .notEmpty().withMessage("El [] no puede estar vacio"),
@@ -92,10 +97,11 @@ const validatorCreateTrade = [
     check('license')
         .exists().withMessage('La licencia es requerida')
         .notEmpty().withMessage('La licencia no puede estar vacia')
+        .isObject().withMessage("El valor del dato no es correcto")
         .custom(async (value, { req }) => {
             const { type_license } = req.body;
             if (!type_license) {
-                const lisc = await license.findOne({ where: { code_license: value, is_manager: type_license } });
+                const lisc = await license.findOne({ where: { code_license: ((value.label).split(' '))[0], is_manager: type_license } });
                 if (lisc !== null) {
                     throw new Error('Licencia duplicada');
                 }
@@ -104,7 +110,8 @@ const validatorCreateTrade = [
         }),
     check('ubication')
         .exists().withMessage('La ubicacion es requerido')
-        .notEmpty().withMessage('La ubicacion no puede estar vacia'),
+        .notEmpty().withMessage('La ubicacion no puede estar vacia')
+        .isObject().withMessage("El valor del dato no es correcto"),
     (req, res, next) => {
         return validationResults(req, res, next);
     }
@@ -124,25 +131,30 @@ const validatorUpdateTrade = [
         .notEmpty().withMessage("El nombre del negocio no puede estar vacio"),
     check("sale_organization")
         .exists().withMessage("El valor de sale_organization debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato de organizacion es invalido"),
     check("channel")
         .exists().withMessage("El valor de channel debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato de organizacion es invalido"),
     check("sector")
         .exists().withMessage("El valor de sector debe existir")
         .notEmpty().withMessage("El [] no puede estar vacio"),
     check("debtor")
         .exists().withMessage("El valor de debtor debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato de organizacion es invalido"),
     check("denomination")
         .exists().withMessage("El valor de denomination debe existir")
         .notEmpty().withMessage("El [] no puede estar vacio"),
     check("center")
         .exists().withMessage("El valor de center debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato de organizacion es invalido"),
     check("center_charity")
         .exists().withMessage("El valor de center_charity debe existir")
-        .notEmpty().withMessage("El [] no puede estar vacio"),
+        .notEmpty().withMessage("El [] no puede estar vacio")
+        .isObject().withMessage("El valor del dato de organizacion es invalido"),
     check("anydesk")
         .exists().withMessage("El valor de anydesk debe existir")
         .notEmpty().withMessage("El [] no puede estar vacio"),
@@ -214,12 +226,10 @@ const validatorUpdateTrade = [
         .notEmpty().withMessage('La licencia no puede estar vacia')
         .custom(async (value, { req }) => {
             const { id } = req.params;
-            /* const thisTrade = await trade.findByPk(id);
-            let query = { where: { code_license: value, is_manager: type_license } }; */
             const { type_license } = req.body;
-            
             if (!type_license) {
-                const lisc = await license.findOne({ where: { code_license: value, is_manager: type_license } });
+                const {value:myvalue, label} = value;
+                const lisc = await license.findOne({ where: { code_license: label, is_manager: type_license } });
                 if (lisc !== null) {
                     throw new Error('Licencia duplicada');
                 }

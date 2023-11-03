@@ -1,5 +1,5 @@
 const { matchedData } = require("express-validator");
-const {trade_series} = require("../models/index");
+const {trade_series, busines} = require("../models/index");
 const { ResponseException, ResponseOk } = require("../utils/apiResponse");
 
 const get_all = async(req,res)=>{
@@ -45,11 +45,12 @@ const changeStatus=async(req,res)=>{
 const get_for_ruc=async(req,res)=>{
     try{
         const {ruc} = req.params;
-        const MyTrade_series=await trade_series.findOne({where:{ruc}});
-        ResponseOk(res,200, MyTrade_series);
+        const MyTrade_series = await trade_series.findOne({where:{ruc}});
+        const MyBusiness = await busines.findOne({where:{ruc}});
+        return ResponseOk(res,200, {...MyTrade_series.toJSON(),...MyBusiness.toJSON()});
     }catch(err){
         console.log(err);
-        ResponseException(res,500,'EXCEPTION_GET_FOR_RUC');
+        return ResponseException(res,500,'EXCEPTION_GET_FOR_RUC');
     }
 }
 

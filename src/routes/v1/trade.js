@@ -1,6 +1,6 @@
 const express=require('express');
 const routes = express.Router();
-const {get_all, create, changeStatus, get_series_for_business, exportExcel,updated, ImportExcel, upload, get_for_license, get_all_logs} = require('../../controllers/tradeController');
+const {get_all, create, changeStatus, get_series_for_business, exportExcel,updated, ImportExcel, upload, get_for_license, get_all_logs, get_serie_free} = require('../../controllers/tradeController');
 const {validatorCreateTrade,validatorUpdateTrade} = require('../../validators/tradeValidator');
 
 routes.get('/',get_all);
@@ -12,5 +12,6 @@ routes.post('/get_for_license',get_for_license)
 routes.post('/search/business',get_series_for_business)
 routes.post('/status/:id',changeStatus);
 routes.post('/export/excel',exportExcel);
+routes.get('/search/:ruc/:serie',get_serie_free)
 
 module.exports=routes

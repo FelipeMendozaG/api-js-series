@@ -12,14 +12,15 @@ const get_all = async (req, res) => {
             const MyTrade = await trade.findAll({ where: { ruc: query.param }, include: [{ model: license }] });
             return ResponseOk(res, 200, MyTrade);
         }
-        const MyTrade = await trade.findAll({ include: [
-            {model: license, as:'license'},
-            {model:type,as:'channel'},
-            {model:type,as:'center'},
-            {model:type,as:'ubication'},
-            {model:type,as:'debtor'},
-            {model:type,as:'center_charity'},
-            {model:type,as:'sale_organization'}
+        const MyTrade = await trade.findAll({
+            include: [
+                { model: license, as: 'license' },
+                { model: type, as: 'channel' },
+                { model: type, as: 'center' },
+                { model: type, as: 'ubication' },
+                { model: type, as: 'debtor' },
+                { model: type, as: 'center_charity' },
+                { model: type, as: 'sale_organization' }
             ]
         });
         return ResponseOk(res, 200, MyTrade);
@@ -53,16 +54,16 @@ const create = async (req, res) => {
         const { __isNew__: isNewCenterCharity, ...objCenterCharity } = body.center_charity
         //
         const otherObj = {
-            sale_organization:{...objeSale},
-            channel:{...objChannel},
-            debtor:{...objDeb},
-            center:{...objCent},
-            licence:{...objLic},
-            ubication:{...objUbic},
-            center_charity:{...objCenterCharity}
+            sale_organization: { ...objeSale },
+            channel: { ...objChannel },
+            debtor: { ...objDeb },
+            center: { ...objCent },
+            licence: { ...objLic },
+            ubication: { ...objUbic },
+            center_charity: { ...objCenterCharity }
         }
         if (isNewSale) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     name: objeSale.label,
                     code: 'C-CREA',
@@ -75,10 +76,10 @@ const create = async (req, res) => {
                     is_active: true
                 }
             })
-            otherObj.sale_organization = {...otherObj.sale_organization,value:id}
+            otherObj.sale_organization = { ...otherObj.sale_organization, value: id }
         }
         if (isNewChannel) {
-            const [{id}]= await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'CH-CREA',
                     name: objChannel.label,
@@ -91,10 +92,10 @@ const create = async (req, res) => {
                     is_active: true
                 }
             });
-            otherObj.channel = {...otherObj.channel, value:id};
+            otherObj.channel = { ...otherObj.channel, value: id };
         }
         if (isNewDeb) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'DEB-CREA',
                     name: objDeb.label,
@@ -107,10 +108,10 @@ const create = async (req, res) => {
                     is_active: true
                 }
             })
-            otherObj.debtor = {...otherObj.debtor,value:id}
+            otherObj.debtor = { ...otherObj.debtor, value: id }
         }
         if (isNewCent) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'CENT-CREA',
                     name: objCent.label,
@@ -123,11 +124,11 @@ const create = async (req, res) => {
                     is_active: true
                 }
             });
-            otherObj.center = {...otherObj.center,value:id}
+            otherObj.center = { ...otherObj.center, value: id }
         }
         if (isNewLic) {
             // ESTO ES SOLO CUANDO ES UNA NUEVA LICENCIA
-            const [{id}] = await license.findOrCreate({
+            const [{ id }] = await license.findOrCreate({
                 where: {
                     code_license: ((objLic.label).split(' '))[0],
                     is_manager: type_license ?? false
@@ -138,10 +139,10 @@ const create = async (req, res) => {
                     is_manager: type_license ?? false
                 }
             });
-            otherObj.licence = {...otherObj.licence,value:id}
+            otherObj.licence = { ...otherObj.licence, value: id }
         }
         if (isNewUbica) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'UBI-CREA',
                     name: objUbic.label,
@@ -154,10 +155,10 @@ const create = async (req, res) => {
                     is_active: true
                 }
             });
-            otherObj.ubication = {...otherObj.ubication,value:id}
+            otherObj.ubication = { ...otherObj.ubication, value: id }
         }
         if (isNewCenterCharity) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'CENT-CHARI-CREA',
                     name: objCenterCharity.label,
@@ -170,7 +171,7 @@ const create = async (req, res) => {
                     is_active: true
                 }
             })
-            otherObj.center_charity = {...otherObj.center_charity,value:id}
+            otherObj.center_charity = { ...otherObj.center_charity, value: id }
         }
         //
         body = {
@@ -183,18 +184,18 @@ const create = async (req, res) => {
             licence_id: otherObj.licence.value,
             ubication_id: otherObj.ubication.value,
 
-            sale_organization:otherObj.sale_organization.label,
-            channel:otherObj.channel.label,
-            debtor:otherObj.debtor.label,
-            center:otherObj.center.label,
-            center_charity:otherObj.center_charity.label,
-            license:otherObj.licence.label,
-            ubication:otherObj.ubication.label,
+            sale_organization: otherObj.sale_organization.label,
+            channel: otherObj.channel.label,
+            debtor: otherObj.debtor.label,
+            center: otherObj.center.label,
+            center_charity: otherObj.center_charity.label,
+            license: otherObj.licence.label,
+            ubication: otherObj.ubication.label,
 
         };
         const MyTrade = await trade.create(body);
         await trade_logs.create({ ...body, duplicate_series: false, trade_id: MyTrade.id });
-        const { ruc, business_name,licence_id } = body;
+        const { ruc, business_name, licence_id } = body;
         const tradeObj = {
             electronic_series_fe: SerieCorrelative(body.electronic_series_fe),
             electronic_series_be: SerieCorrelative(body.electronic_series_be),
@@ -204,7 +205,7 @@ const create = async (req, res) => {
         //ACTUALIZAMOS LA LICENCIA
         if (type_license) {
             const MyTrade = await trade.findAll({ where: { licence_id } });
-            await license.update({ box_count: MyTrade.length, is_manager: type_license }, { where: { id:licence_id } })
+            await license.update({ box_count: MyTrade.length, is_manager: type_license }, { where: { id: licence_id } })
         }
         const TradeSeries = await trade_series.findOne({ where: { ruc } });
         if (TradeSeries == null || TradeSeries == undefined) {
@@ -233,16 +234,16 @@ const updated = async (req, res) => {
         const { __isNew__: isNewCenterCharity, ...objCenterCharity } = body.center_charity
 
         const otherObj = {
-            sale_organization:{...objeSale},
-            channel:{...objChannel},
-            debtor:{...objDeb},
-            center:{...objCent},
-            licence:{...objLic},
-            ubication:{...objUbic},
-            center_charity:{...objCenterCharity}
+            sale_organization: { ...objeSale },
+            channel: { ...objChannel },
+            debtor: { ...objDeb },
+            center: { ...objCent },
+            licence: { ...objLic },
+            ubication: { ...objUbic },
+            center_charity: { ...objCenterCharity }
         }
         if (isNewSale) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     name: objeSale.label,
                     code: 'C-CREA',
@@ -255,10 +256,10 @@ const updated = async (req, res) => {
                     is_active: true
                 }
             })
-            otherObj.sale_organization = {...otherObj.sale_organization,value:id}
+            otherObj.sale_organization = { ...otherObj.sale_organization, value: id }
         }
         if (isNewChannel) {
-            const [{id}]= await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'CH-CREA',
                     name: objChannel.label,
@@ -271,10 +272,10 @@ const updated = async (req, res) => {
                     is_active: true
                 }
             });
-            otherObj.channel = {...otherObj.channel, value:id};
+            otherObj.channel = { ...otherObj.channel, value: id };
         }
         if (isNewDeb) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'DEB-CREA',
                     name: objDeb.label,
@@ -287,10 +288,10 @@ const updated = async (req, res) => {
                     is_active: true
                 }
             })
-            otherObj.debtor = {...otherObj.debtor,value:id}
+            otherObj.debtor = { ...otherObj.debtor, value: id }
         }
         if (isNewCent) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'CENT-CREA',
                     name: objCent.label,
@@ -303,11 +304,11 @@ const updated = async (req, res) => {
                     is_active: true
                 }
             });
-            otherObj.center = {...otherObj.center,value:id}
+            otherObj.center = { ...otherObj.center, value: id }
         }
         if (isNewLic) {
             // ESTO ES SOLO CUANDO ES UNA NUEVA LICENCIA
-            const [{id,code_license}] = await license.findOrCreate({
+            const [{ id, code_license }] = await license.findOrCreate({
                 where: {
                     code_license: ((objLic.label).split(' '))[0],
                     is_manager: type_license ?? false
@@ -318,10 +319,10 @@ const updated = async (req, res) => {
                     is_manager: type_license ?? false
                 }
             });
-            otherObj.licence = {...otherObj.licence,value:id, label:code_license}
+            otherObj.licence = { ...otherObj.licence, value: id, label: code_license }
         }
         if (isNewUbica) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'UBI-CREA',
                     name: objUbic.label,
@@ -334,10 +335,10 @@ const updated = async (req, res) => {
                     is_active: true
                 }
             });
-            otherObj.ubication = {...otherObj.ubication,value:id}
+            otherObj.ubication = { ...otherObj.ubication, value: id }
         }
         if (isNewCenterCharity) {
-            const [{id}] = await type.findOrCreate({
+            const [{ id }] = await type.findOrCreate({
                 where: {
                     code: 'CENT-CHARI-CREA',
                     name: objCenterCharity.label,
@@ -350,7 +351,7 @@ const updated = async (req, res) => {
                     is_active: true
                 }
             })
-            otherObj.center_charity = {...otherObj.center_charity,value:id}
+            otherObj.center_charity = { ...otherObj.center_charity, value: id }
         }
 
         body = {
@@ -363,17 +364,16 @@ const updated = async (req, res) => {
             licence_id: otherObj.licence.value,
             ubication_id: otherObj.ubication.value,
 
-            sale_organization:otherObj.sale_organization.label,
-            channel:otherObj.channel.label,
-            debtor:otherObj.debtor.label,
-            center:otherObj.center.label,
-            center_charity:otherObj.center_charity.label,
-            license:((otherObj.licence.label).split(' '))[0],
-            ubication:otherObj.ubication.label,
+            sale_organization: otherObj.sale_organization.label,
+            channel: otherObj.channel.label,
+            debtor: otherObj.debtor.label,
+            center: otherObj.center.label,
+            center_charity: otherObj.center_charity.label,
+            license: ((otherObj.licence.label).split(' '))[0],
+            ubication: otherObj.ubication.label,
 
         };
-        console.log(body);
-        /* await trade.update(body, { where: { id } });
+        await trade.update(body, { where: { id } });
         if (is_duplicate === true) {
             body = { ...body, duplicate_series: true, trade_id: id };
             await trade_logs.create(body);
@@ -384,9 +384,9 @@ const updated = async (req, res) => {
             await license.create({ code_license, box_count: 1, is_manager: false });
             return ResponseOk(res, 202, await trade.findByPk(id));
         }
-        const { id: license_id } = lic;
-        const boxcount = await trade.findAll({ where: { license: code_license } })
-        await license.update({ code_license, box_count: boxcount.length, is_manager: (boxcount.length > 1 ? true : false) }, { where: { id: license_id } }); */
+        const { id: licence_id } = lic;
+        const boxcount = await trade.findAll({ where: { licence_id } })
+        await license.update({ licence_id, box_count: boxcount.length, is_manager: (boxcount.length > 1 ? true : false) }, { where: { id: licence_id } });
         return ResponseOk(res, 202, await trade.findByPk(id));
     } catch (err) {
         console.log(err);
@@ -450,8 +450,17 @@ const exportExcel = async (req, res) => {
         const worksheet = workbook.addWorksheet(nameSheet);
 
         // Agregar datos al archivo Excel
-        const dataInfo = await trade.findAll({});
-
+        const dataInfo = await trade.findAll({
+            include: [
+                { model: license, as: 'license' },
+                { model: type, as: 'channel' },
+                { model: type, as: 'center' },
+                { model: type, as: 'ubication' },
+                { model: type, as: 'debtor' },
+                { model: type, as: 'center_charity' },
+                { model: type, as: 'sale_organization' }
+            ]
+        });
         const colum = [
             {
                 header: 'RAZON SOCIAL',
@@ -475,7 +484,7 @@ const exportExcel = async (req, res) => {
             },
             {
                 header: 'LICENCIA',
-                key: 'license',
+                key: 'license'
             },
             {
                 header: 'ORGANIZACION DE VENTA',
@@ -514,6 +523,18 @@ const exportExcel = async (req, res) => {
                 key: 'attached_code',
             },
             {
+                header: "IP",
+                key: 'ip'
+            },
+            {
+                header: 'HOST',
+                key: 'host'
+            },
+            {
+                header: 'NUMERO DE IDENTIFICADOR',
+                key: 'number_indentifier'
+            },
+            {
                 header: 'SERIE FACTURA ELECTRONICA',
                 key: 'electronic_series_fe',
             },
@@ -530,9 +551,23 @@ const exportExcel = async (req, res) => {
                 key: 'electronic_series_ncb',
             }
         ]
+        
         worksheet.columns = colum;
 
-        const data = dataInfo
+        const data = dataInfo.map((item)=>{
+            const row = item.toJSON();
+            return {
+                ...row,
+                license:row.license?.code_license ?? '',
+                ubication:row.ubication?.name ?? '',
+                sale_organization:row.sale_organization?.name ?? '',
+                center:row.center?.name ?? '',
+                channel:row.channel?.name ?? '',
+                sale_organization:row.sale_organization?.name ?? '',
+                debtor:row.debtor?.name ?? '',
+                center_charity:row.center_charity?.name ?? ''
+            }
+        });
 
         worksheet.addRows(data);
 
@@ -627,4 +662,19 @@ const get_all_logs = async (req, res) => {
     }
 }
 
-module.exports = { get_all, create, updated, changeStatus, get_for_ruc, get_series_for_business, exportExcel, ImportExcel, upload, get_for_license, get_all_logs }
+const get_serie_free = async(req,res)=>{
+    try{
+        const {ruc,serie} = req.params;
+        /* const Series = await trade.findAll({
+            where:{
+                ruc
+            }
+        })
+        console.log(ser) */
+        return ResponseOk(res,200,[]);
+    }catch(err){
+        return ResponseException(res,500,err);
+    }
+}
+
+module.exports = { get_all, create, updated, changeStatus, get_for_ruc, get_series_for_business, exportExcel, ImportExcel, upload, get_for_license, get_all_logs, get_serie_free}

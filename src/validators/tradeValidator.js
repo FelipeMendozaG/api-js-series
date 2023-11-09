@@ -121,6 +121,12 @@ const validatorUpdateTrade = [
     check('business_name')
         .exists().withMessage('Ingresar Razón social')
         .notEmpty().withMessage("La razon social no puede estar vacio"),
+    check('ip')
+        .isString("Este no es un valor valido"),
+    check('host')
+        .isString("Este no es un valor valido"),
+    check('number_indentifier')
+        .isString('Este no es un valor valido'),
     check('ruc')
         .exists().withMessage('Ingresar RUC')
         .notEmpty().withMessage("El ruc no puede estar vacio"),
@@ -229,7 +235,7 @@ const validatorUpdateTrade = [
             const { type_license } = req.body;
             if (!type_license) {
                 const {value:myvalue, label} = value;
-                const lisc = await license.findOne({ where: { code_license: label, is_manager: type_license } });
+                const lisc = await license.findOne({ where: { code_license: (label.split(" "))[0], is_manager: type_license } });
                 if (lisc !== null) {
                     throw new Error('Licencia duplicada');
                 }

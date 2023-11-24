@@ -8,4 +8,5 @@ module.exports={
     trade_series:require('./trade_series'),
     license:require('./licences'),
     trade_logs:require('./trade_log'),
+    trade_import:require('./trade_import'),
 }

@@ -250,4 +250,13 @@ const validatorUpdateTrade = [
     }
 ]
 
-module.exports = { validatorCreateTrade, validatorUpdateTrade }
+const validatorImportTrade = [
+    /* check('fileparam')
+        .exists().withMessage('El archivo debe existir.')
+        .isBase64().withMessage('El valor debe ser un archivo.'), */
+    (req, res, next) => {
+        return validationResults(req, res, next);
+    }
+];
+
+module.exports = { validatorCreateTrade, validatorUpdateTrade, validatorImportTrade }

@@ -1,5 +1,5 @@
 const { matchedData } = require("express-validator");
-const { trade, trade_series, license, trade_logs, type } = require("../models/index")
+const { trade, trade_series, license, trade_logs, type, busines, trade_import } = require("../models/index")
 const { ResponseException, ResponseOk, ResponseError } = require("../utils/apiResponse");
 const { SerieCorrelative } = require("../utils/handleSeries")
 const ExcelJS = require('exceljs');
@@ -602,7 +602,7 @@ const ImportExcel = async (req, res) => {
             });
 
             // Leer el contenido del Excel y crear un array de objetos
-            worksheet.eachRow({ includeEmpty: false, firstRow: 2 }, (row) => {
+            worksheet.eachRow({ includeEmpty: true, firstRow: 2 }, (row) => {
                 const rowData = {};
                 row.eachCell((cell, colNumber) => {
                     rowData[header[colNumber - 1]] = cell.value;
@@ -618,36 +618,48 @@ const ImportExcel = async (req, res) => {
             }
         });
         // PROCESO DE GUARDADO DE INFORMACION
+        await trade_logs.sequelize.query('TRUNCATE TABLE trade_import;')
         for (let item of data) {
-            const bodyparan = {
-                business_name: item["RAZON SOCIAL"],
-                ruc: item.RUC,
-                ubication: item.UBICACION ?? '',
-                address: item.DIRECCION ?? '',
-                channel: item.CANAL ?? '',
-                sector: item.SECTOR ?? '',
-                license: item.LICENCIA ?? '',
-                trade_business: item.NEGOCIO,
-                sale_organization: item["ORGANIZACION DE VENTA"] ?? '',
-                debtor: item.DEUDOR ?? '',
-                denomination: item.DENOMINACION ?? '',
-                center: item.CENTRO ?? '',
-                center_charity: item["CENTRO BENEFICO"] ?? '',
-                anydesk: item.ANYDESK ?? '',
-                attached_code: item["CODIGO ANEXO"] ?? '',
-                electronic_series_fe: item["SERIE ELECTRONICA FE"],
-                electronic_series_be: item["SERIE ELECTRONICA BE"],
-                electronic_series_ncf: item["SERIE ELECTRONICA NCF"],
-                electronic_series_ncb: item["SERIE ELECTRONICA NCB"]
-            };
-            const { id } = await trade.create(bodyparan);
-            await trade_logs.create({ ...bodyparan, trade_id: id, duplicate_series: false, is_active: true });
+            const {
+                "RAZON SOCIAL": business_name,
+                RUC:ruc,
+                NEGOCIO:trade_business,
+                UBICACION:ubication,
+                DIRECCION:address,
+                LICENCIA:license,
+                "ORGANIZACION DE VENTA": sale_organization,
+                CANAL:channel,
+                SECTOR:sector,
+                DEUDOR:debtor,
+                DENOMINACION:denomination,
+                CENTRO:center,
+                "CENTRO BENEFICO": center_charity,
+                IP:ip,
+                HOSTNAME:host,
+                ANYDESK:anydesk,
+                "NUMERO IDENTIFICADOR":number_indentifier,
+                "CODIGO ANEXO": attached_code,
+                "SERIE ELECTRONICA FE": electronic_series_fe,
+                "SERIE ELECTRONICA BE": electronic_series_be,
+                "SERIE ELECTRONICA NCF": electronic_series_ncf,
+                "SERIE ELECTRONICA NCB": electronic_series_ncb
+            } = item;
+            // BUSCAMOS EL RUC DE LA EMPRESA SI EXISTE
+            await trade_import.create({
+                business_name,
+                ruc, trade_business,
+                ubication,address,license,sale_organization,host,
+                channel,sector,debtor,denomination,center,center_charity,
+                ip,anydesk,number_indentifier,attached_code,electronic_series_fe,
+                electronic_series_be,electronic_series_ncf,electronic_series_ncb
+            })
         }
+        await trade_logs.sequelize.query('CALL BD_SERIES.USP_LOAD_DATA_FOR_ALL() ')
         await trade_logs.sequelize.query('CALL BD_SERIES.USP_GET_SERIES_FOR_TRADE() ')
-        await trade_logs.sequelize.query('CALL BD_SERIES.USP_LOAD_BUSINESS() ')
-        await trade_logs.sequelize.query('CALL BD_SERIES.USP_LOAD_LICENCES() ');
+        /* await trade_logs.sequelize.query('CALL BD_SERIES.USP_LOAD_LICENCES() '); */
         return ResponseOk(res, 202, data);
     } catch (err) {
+        console.log(err);
         return ResponseException(res, 500, 'EXCEPTION_IMPORT_EXCEL');
     }
 }

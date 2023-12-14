@@ -55,7 +55,7 @@ const get_channel = async(req,res)=>{
         const MyChannels = await type.findAll({include:[{model:type_group,where:{code:'TPCHANNEL'} }]})
         return ResponseOk(res,200,MyChannels);
     }catch(err){
-        return ResponseException(res,500,err)
+        return ResponseException(res,500,err.message)
     }
 }
 const get_center_charity = async(req,res)=>{
@@ -63,7 +63,18 @@ const get_center_charity = async(req,res)=>{
         const MyCenterCharity = await type.findAll({include:[{model:type_group,where:{code:'TPCENTERCHARITY'}}]})
         return ResponseOk(res,200,MyCenterCharity)
     }catch(err){
-        return ResponseException(res,500,err);
+        return ResponseException(res,500,err.message);
     }
 }
-module.exports = { get_all, get_ubication, get_document, get_debtor, get_sale_organization, get_center, get_channel, get_center_charity}
+const get_type_contact = async(req,res)=>{
+    try{
+        const TypeContact = await type.findAll({include:[{model:type_group, where:{code:'TP-G-CONTAC'}}]})
+        return ResponseOk(res,200,TypeContact)
+    }catch(err){
+        return ResponseException(res,500,err.message);
+    }
+}
+module.exports = {
+    get_all, get_ubication, get_document, get_debtor, get_sale_organization, get_center, get_channel, get_center_charity,
+    get_type_contact
+}

@@ -13,6 +13,7 @@ const Business = sequelize.define(
         ruc:{
             type:DataTypes.STRING,
             allowNull:true,
+            primaryKey:true
         },
         name:{
             type:DataTypes.STRING,

@@ -1,5 +1,6 @@
 const {sequelize} = require('../config/database');
 const {DataTypes} = require('sequelize');
+const Business = require('./busines');
 
 const License = sequelize.define(
     'licences',
@@ -23,10 +24,20 @@ const License = sequelize.define(
             allowNull:false,
             defaultValue:false
         },
+        business_id:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            references:{
+                model:Business,
+                key:'id'
+            }
+        }
     },
     {
         timestamps:true,
     }
 );
+
+License.belongsTo(Business,{foreignKey:'business_id'})
 
 module.exports = License;

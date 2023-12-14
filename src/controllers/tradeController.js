@@ -1,9 +1,10 @@
 const { matchedData } = require("express-validator");
-const { trade, trade_series, license, trade_logs, type, busines, trade_import } = require("../models/index")
+const { trade, trade_series, license, trade_logs, type, busines, trade_import, contact_business, type_group } = require("../models/index")
 const { ResponseException, ResponseOk, ResponseError } = require("../utils/apiResponse");
 const { SerieCorrelative } = require("../utils/handleSeries")
 const ExcelJS = require('exceljs');
 const multer = require('multer');
+const { Sequelize } = require("sequelize");
 
 const get_all = async (req, res) => {
     try {
@@ -20,7 +21,7 @@ const get_all = async (req, res) => {
                 { model: type, as: 'ubication' },
                 { model: type, as: 'debtor' },
                 { model: type, as: 'center_charity' },
-                { model: type, as: 'sale_organization' }
+                { model: type, as: 'sale_organization' },
             ]
         });
         return ResponseOk(res, 200, MyTrade);
@@ -128,15 +129,19 @@ const create = async (req, res) => {
         }
         if (isNewLic) {
             // ESTO ES SOLO CUANDO ES UNA NUEVA LICENCIA
+            const {ruc:business_ruc} = body;
+            const objBusiness = await busines.findOne({where:{ruc:business_ruc}});
             const [{ id }] = await license.findOrCreate({
                 where: {
                     code_license: ((objLic.label).split(' '))[0],
-                    is_manager: type_license ?? false
+                    is_manager: type_license ?? false,
+                    business_id:objBusiness.id
                 },
                 defaults: {
                     code_license: ((objLic.label).split(' '))[0],
                     box_count: 1,
-                    is_manager: type_license ?? false
+                    is_manager: type_license ?? false,
+                    business_id:objBusiness.id
                 }
             });
             otherObj.licence = { ...otherObj.licence, value: id }
@@ -308,15 +313,19 @@ const updated = async (req, res) => {
         }
         if (isNewLic) {
             // ESTO ES SOLO CUANDO ES UNA NUEVA LICENCIA
+            const {ruc:business_ruc} = body;
+            const objBusiness = await busines.findOne({where:{ruc:business_ruc}});
             const [{ id, code_license }] = await license.findOrCreate({
                 where: {
                     code_license: ((objLic.label).split(' '))[0],
-                    is_manager: type_license ?? false
+                    is_manager: type_license ?? false,
+                    business_id:objBusiness.id
                 },
                 defaults: {
                     code_license: ((objLic.label).split(' '))[0],
                     box_count: 1,
-                    is_manager: type_license ?? false
+                    is_manager: type_license ?? false,
+                    business_id:objBusiness.id
                 }
             });
             otherObj.licence = { ...otherObj.licence, value: id, label: code_license }
@@ -689,4 +698,81 @@ const get_serie_free = async(req,res)=>{
     }
 }
 
-module.exports = { get_all, create, updated, changeStatus, get_for_ruc, get_series_for_business, exportExcel, ImportExcel, upload, get_for_license, get_all_logs, get_serie_free}
+const ImportContact = async(req,res)=>{
+    try{
+        if(!req.file){
+            return ResponseError(res,400,['El archivo de tipo file no existe'])
+        }
+        const workbook = new ExcelJS.Workbook();
+        const buffer = req.file.buffer;
+        const dataExcel = await workbook.xlsx.load(buffer).then(()=>{
+            const worksheet = workbook.getWorksheet(1); // Selecciona la hoja deseada
+
+            const excelData = [];
+
+            const header = [];
+            worksheet.getRow(1).eachCell((cell) => {
+                header.push(cell.value);
+            });
+
+            // Leer el contenido del Excel y crear un array de objetos
+            worksheet.eachRow({ includeEmpty: true, firstRow: 2 }, (row) => {
+                const rowData = {};
+                row.eachCell((cell, colNumber) => {
+                    rowData[header[colNumber - 1]] = cell.value;
+                });
+                excelData.push(rowData);
+            });
+
+            return excelData;
+        });
+        const data = dataExcel.filter((item, index) => {
+            if (index !== 0) {
+                return item;
+            }
+        });
+        // PROCESO DE GUARDADO DE INFORMACION
+        const [typeGroup] = await type_group.findOrCreate({
+            where:{
+                name:'CARGO DE CONTACTOS',
+                is_active:true
+            },
+            defaults:{
+                name:'CARGO DE CONTACTOS',
+                is_active:true,
+                code:'TP-G-CONTAC'
+            }
+        });
+        await trade_logs.sequelize.query('TRUNCATE TABLE contact_business;')
+        for(let item of data){
+            const {id:business_id} = await busines.findOne({where:{ruc:item['RUC EMPRESA']}});
+            const [TypeContact,__isNew__] = await type.findOrCreate({
+                where:{
+                    name:item.CARGO,
+                    type_group_id:typeGroup.id
+                },
+                defaults:{
+                    name:item.CARGO,
+                    code:'COD-T-',
+                    type_group_id:typeGroup.id,
+                    is_active:true
+                }
+            });
+            await contact_business.create({
+                point_of_sale:item.LOCAL,
+                contact_name:item.CONTACTO,
+                email:item.CORREO,
+                tel_phone:item.TELEFONO,
+                observations:item.OBSERVACIONES,
+                business_id,
+                type_contact:TypeContact.id
+            })
+        }
+        return ResponseOk(res,200,dataExcel);
+    }catch(err){
+        console.log(err);
+        return ResponseException(res,500,err.message)
+    }
+}
+
+module.exports = { get_all, create, updated, changeStatus, get_for_ruc, get_series_for_business, exportExcel, ImportExcel, upload, get_for_license, get_all_logs, get_serie_free, ImportContact}

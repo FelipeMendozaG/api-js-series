@@ -9,4 +9,5 @@ module.exports={
     license:require('./licences'),
     trade_logs:require('./trade_log'),
     trade_import:require('./trade_import'),
+    contact_business:require('./contact_business')
 }

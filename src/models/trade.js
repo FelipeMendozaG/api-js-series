@@ -2,6 +2,7 @@ const {sequelize} = require('../config/database');
 const {DataTypes} = require('sequelize');
 const License = require('./licences');
 const Type = require('./type');
+const Business = require('./busines');
 
 const Trade = sequelize.define(
     'trade',
@@ -18,7 +19,11 @@ const Trade = sequelize.define(
         },
         ruc:{
             type:DataTypes.STRING,
-            allowNull:false
+            allowNull:false,
+            references:{
+                model:Business,
+                key:'ruc'
+            }
         },
         licence_id:{
             type:DataTypes.INTEGER,
@@ -143,5 +148,6 @@ Trade.belongsTo(Type,{foreignKey:'ubication_id', as:'ubication'});
 Trade.belongsTo(Type,{foreignKey:'debtor_id',as:'debtor'});
 Trade.belongsTo(Type,{foreignKey:'center_charity_id',as:'center_charity'})
 Trade.belongsTo(Type,{foreignKey:'sale_organization_id',as:'sale_organization'})
+Trade.belongsTo(Business,{foreignKey:'ruc',as:'business_object'});
 
 module.exports = Trade;

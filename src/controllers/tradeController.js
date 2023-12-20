@@ -27,7 +27,7 @@ const get_all = async (req, res) => {
         return ResponseOk(res, 200, MyTrade);
     } catch (err) {
         console.log(err);
-        return ResponseException(res, 500, 'ERROR_GET_ALL_BUSNESS')
+        return ResponseException(res, 500, 'ERROR_GET_ALL_BUSNESS',err)
     }
 }
 
@@ -37,7 +37,7 @@ const get_for_license = async (req, res) => {
         const tradelist = await trade_logs.findAll({ where: { license } });
         return ResponseOk(res, 200, tradelist);
     } catch (err) {
-        return ResponseException(res, 500, 'EXCEPTION_GET_FOR_LICENSE');
+        return ResponseException(res, 500, 'EXCEPTION_GET_FOR_LICENSE',err);
     }
 }
 
@@ -221,7 +221,7 @@ const create = async (req, res) => {
         return ResponseOk(res, 201, MyTrade);
     } catch (err) {
         console.log(err);
-        return ResponseException(res, 500, 'ERROR_EXCEPTION_CREATE_BUSINESS')
+        return ResponseException(res, 500, 'ERROR_EXCEPTION_CREATE_BUSINESS',err)
     }
 }
 
@@ -399,7 +399,7 @@ const updated = async (req, res) => {
         return ResponseOk(res, 202, await trade.findByPk(id));
     } catch (err) {
         console.log(err);
-        return ResponseException(res, 500, 'ERROR_UPDATE_BUSINESS')
+        return ResponseException(res, 500, 'ERROR_UPDATE_BUSINESS',err)
     }
 }
 const changeStatus = async (req, res) => {
@@ -408,9 +408,9 @@ const changeStatus = async (req, res) => {
         const MyTrade = await trade.findByPk(id);
         MyTrade.is_active = !MyTrade.is_active;
         MyTrade.save();
-        ResponseOk(res, 200, await trade.findByPk(id));
+        return ResponseOk(res, 200, await trade.findByPk(id));
     } catch (err) {
-        ResponseException(res, 500, 'ERROR-EXCEPTION-CHANGESTATUS');
+        return ResponseException(res, 500, 'ERROR-EXCEPTION-CHANGESTATUS',err);
     }
 }
 const get_for_ruc = async (req, res) => {
@@ -423,7 +423,7 @@ const get_for_ruc = async (req, res) => {
         });
     } catch (err) {
         console.log(err);
-        ResponseException(res, 500, 'EXCEPTION_GET_FOR_RUC');
+        return ResponseException(res, 500, 'EXCEPTION_GET_FOR_RUC',err);
     }
 }
 
@@ -448,7 +448,7 @@ const get_series_for_business = async (req, res) => {
         return ResponseOk(res, 200, await trade.findAll({ where: { ruc } }));
     } catch (err) {
         console.log(err);
-        return ResponseException(res, 500, 'EXCEPTION_GET_SERIES');
+        return ResponseException(res, 500, 'EXCEPTION_GET_SERIES',err);
     }
 };
 
@@ -588,7 +588,7 @@ const exportExcel = async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (err) {
-        ResponseException(res, 500, 'EXCEPTION EXPORT EXCEL')
+        return ResponseException(res, 500, 'EXCEPTION EXPORT EXCEL',err)
     }
 }
 const storage = multer.memoryStorage();
@@ -669,7 +669,7 @@ const ImportExcel = async (req, res) => {
         return ResponseOk(res, 202, data);
     } catch (err) {
         console.log(err);
-        return ResponseException(res, 500, 'EXCEPTION_IMPORT_EXCEL');
+        return ResponseException(res, 500, 'EXCEPTION_IMPORT_EXCEL',err);
     }
 }
 
@@ -679,7 +679,7 @@ const get_all_logs = async (req, res) => {
         const tradelogs = await trade_logs.findAll({ where: { trade_id } })
         return ResponseOk(res, 200, tradelogs)
     } catch (err) {
-        return ResponseException(res, 500, 'EXCEPTION_GET_ALL_LOGS')
+        return ResponseException(res, 500, 'EXCEPTION_GET_ALL_LOGS',err)
     }
 }
 
@@ -694,7 +694,7 @@ const get_serie_free = async(req,res)=>{
         console.log(ser) */
         return ResponseOk(res,200,[]);
     }catch(err){
-        return ResponseException(res,500,err);
+        return ResponseException(res,500,'CODE_RESPONSE_GET_SERIE_FREE',err);
     }
 }
 
@@ -771,7 +771,7 @@ const ImportContact = async(req,res)=>{
         return ResponseOk(res,200,dataExcel);
     }catch(err){
         console.log(err);
-        return ResponseException(res,500,err.message)
+        return ResponseException(res,500,'CODE_EXCEPTION_IMPORTCONTACT',err)
     }
 }
 

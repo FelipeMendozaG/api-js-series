@@ -10,7 +10,7 @@ const get_all = async (req, res) => {
         ResponseOk(res, 200, MyTrade_series);
     } catch (err) {
         console.log(err);
-        ResponseException(res, 500, 'ERROR_GET_ALL_BUSNESS')
+        return ResponseException(res, 500, 'ERROR_GET_ALL_BUSNESS',err)
     }
 }
 const create = async (req, res) => {
@@ -19,7 +19,7 @@ const create = async (req, res) => {
         const MyTrade_series = await trade_series.create(body);
         ResponseOk(res, 201, MyTrade_series);
     } catch (err) {
-        ResponseException(res, 500, 'ERROR_EXCEPTION_CREATE_BUSINESS')
+        return ResponseException(res, 500, 'ERROR_EXCEPTION_CREATE_BUSINESS',err)
     }
 }
 const update = async (req, res) => {
@@ -30,7 +30,7 @@ const update = async (req, res) => {
         ResponseOk(res, 202, await trade_series.findByPk(id));
     } catch (err) {
         console.log(err);
-        ResponseException(res, 500, 'ERROR_UPDATE_BUSINESS')
+        return ResponseException(res, 500, 'ERROR_UPDATE_BUSINESS',err)
     }
 }
 const changeStatus = async (req, res) => {
@@ -41,7 +41,7 @@ const changeStatus = async (req, res) => {
         MyTrade.save();
         ResponseOk(res, 200, await trade_series.findByPk(id));
     } catch (err) {
-        ResponseException(res, 500, 'ERROR-EXCEPTION-CHANGESTATUS');
+        return ResponseException(res, 500, 'ERROR-EXCEPTION-CHANGESTATUS',err);
     }
 }
 const get_for_ruc = async (req, res) => {
@@ -100,7 +100,7 @@ const get_for_ruc = async (req, res) => {
         return ResponseOk(res, 200, { ...MyTrade_series.toJSON(), ...MyBusiness.toJSON(), series_free: { electronic_series_fe: electronic_series_fe_free, electronic_series_be: electronic_series_be_free, electronic_series_ncb: electronic_series_ncb_free, electronic_series_ncf:electronic_series_ncf_free} });
     } catch (err) {
         console.log(err);
-        return ResponseException(res, 500, 'EXCEPTION_GET_FOR_RUC');
+        return ResponseException(res, 500, 'EXCEPTION_GET_FOR_RUC',err);
     }
 }
 

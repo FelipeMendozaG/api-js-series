@@ -7,7 +7,7 @@ const get_all = async(req,res)=>{
         return ResponseOk(res,200,ContactBusiness);
     }catch(err){
         console.log(err);
-        return ResponseException(res,500,err.message);
+        return ResponseException(res,500,'CODE_EXCEPTION_GET_ALL_CONTACT_BUSS',err);
     }
 }
 const get_find_ruc = async(req,res)=>{
@@ -17,7 +17,7 @@ const get_find_ruc = async(req,res)=>{
         const ContactBusiness = await contact_business.findAll({where:{business_id},include:[busines,type]});
         return ResponseOk(res,200,ContactBusiness);
     }catch(err){
-        return ResponseException(res,500,err.message)
+        return ResponseException(res,500,'CODE_EXCEPTION_GET_FIND_RUC',err)
     }
 }
 const createOrUpdate = async(req,res)=>{
@@ -33,7 +33,7 @@ const createOrUpdate = async(req,res)=>{
         const objContact = await contact_business.create({...body,business_id:objBusiness.id})
         return ResponseOk(res,200,objContact)
     }catch(err){
-        return ResponseException(res,500,err.message);
+        return ResponseException(res,500,'CODE_EXCEPTION_CREATE_OR_UPDATE',err);
     }
 }
 const deleted = async(req,res)=>{
@@ -42,7 +42,7 @@ const deleted = async(req,res)=>{
         const objDeleted = await contact_business.destroy({where:{id}})
         return ResponseOk(res,200,{objDeleted});
     }catch(err){
-        return ResponseException(res,200,err.message);
+        return ResponseException(res,200,'CODE_EXCEPTION_DELETED',err);
     }
 }
 

@@ -7,7 +7,7 @@ const get_all=async(req,res)=>{
         const License = await license.findAll({include:[{model:busines}]});
         return ResponseOk(res,200,License);
     }catch(err){
-        return ResponseException(res,500,'EXCEPTION_GET_ALL')
+        return ResponseException(res,500,'EXCEPTION_GET_ALL',err)
     }
 }
 const create = async(req,res)=>{
@@ -18,7 +18,7 @@ const create = async(req,res)=>{
         return ;
     }catch(err){
         console.log(err);
-        ResponseException(res,500,'EXCEPTION_CREATE')
+        ResponseException(res,500,'EXCEPTION_CREATE',err)
         return ;
     }
 }
@@ -31,7 +31,7 @@ const updated = async(req,res)=>{
         return ;
     }catch(err){
         console.log(err);
-        ResponseException(res,500,'EXCEPTION_UDPATED');
+        ResponseException(res,500,'EXCEPTION_UDPATED',err);
         return ;
     }
 }

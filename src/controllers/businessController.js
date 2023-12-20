@@ -8,7 +8,7 @@ const get_all = async(req,res)=>{
         ResponseOk(res,200,Mybusiness);
     }catch(err){
         console.log(err);
-        ResponseException(res,500,'ERROR_GET_ALL_BUSNESS')
+        ResponseException(res,500,'ERROR_GET_ALL_BUSNESS',err)
     }
 }
 const create = async(req,res)=>{
@@ -17,7 +17,7 @@ const create = async(req,res)=>{
         const MyBusiness = await busines.create(body);
         ResponseOk(res,201,MyBusiness);
     }catch(err){
-        ResponseException(res,500,'ERROR_EXCEPTION_CREATE_BUSINESS')
+        ResponseException(res,500,'ERROR_EXCEPTION_CREATE_BUSINESS',err)
     }
 }
 const update = async(req,res)=>{
@@ -28,7 +28,7 @@ const update = async(req,res)=>{
         ResponseOk(res,202,await busines.findByPk(id));
     }catch(err){
         console.log(err);
-        ResponseException(res,500,'ERROR_UPDATE_BUSINESS')
+        ResponseException(res,500,'ERROR_UPDATE_BUSINESS',err)
     }
 }
 const changeStatus=async(req,res)=>{
@@ -39,7 +39,7 @@ const changeStatus=async(req,res)=>{
         MyBusiness.save();
         ResponseOk(res,200,await busines.findByPk(id));
     }catch(err){
-        ResponseException(res,500,'ERROR-EXCEPTION-CHANGESTATUS');
+        ResponseException(res,500,'ERROR-EXCEPTION-CHANGESTATUS',err);
     }
 }
 const search_ruc = async(req,res)=>{
@@ -48,7 +48,7 @@ const search_ruc = async(req,res)=>{
         console.log(ruc);
         ResponseOk(res,200,{})
     }catch(err){
-        ResponseException(res,500,'SEARCH_RUC_NO_EXISTS');
+        ResponseException(res,500,'SEARCH_RUC_NO_EXISTS',err);
     }
 }
 

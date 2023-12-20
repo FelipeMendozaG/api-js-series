@@ -1,0 +1,19 @@
+2023-12-20T15:51:59.967Z - Error: types is not defined
+Stack trace: ReferenceError: types is not defined
+    at get_all (C:\EWONG\api-js-series\src\controllers\tradeController.js:22:26)
+    at Layer.handle [as handle_request] (C:\EWONG\api-js-series\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\EWONG\api-js-series\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (C:\EWONG\api-js-series\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (C:\EWONG\api-js-series\node_modules\express\lib\router\layer.js:95:5)
+    at C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:280:10)
+    at Function.handle (C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:175:3)
+    at router (C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:47:12)
+    at Layer.handle [as handle_request] (C:\EWONG\api-js-series\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:328:13)
+    at C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:280:10)
+    at Function.handle (C:\EWONG\api-js-series\node_modules\express\lib\router\index.js:175:3)
+

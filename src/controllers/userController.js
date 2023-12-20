@@ -12,9 +12,9 @@ const get_all=async(req,res)=>{
             return ;
         }
         const ModelUser = await user.findAll();
-        ResponseOk(res,200,ModelUser);
+        return ResponseOk(res,200,ModelUser);
     }catch(err){
-        ResponseException(res,500,'ERROR_EXCEPTION_GET_ALL');
+        return ResponseException(res,500,'ERROR_EXCEPTION_GET_ALL',err);
     }
 }
 const authenticate=async(req,res)=>{
@@ -37,10 +37,10 @@ const authenticate=async(req,res)=>{
             token : await tokenSign(myuser),
             user:{...myuser,user_id:undefined,is_active:undefined}
         }
-        ResponseOk(res,200,data);
+        return ResponseOk(res,200,data);
     }catch(err){
         console.log(err);
-        ResponseException(res,500,"ERROR_EXCEPTION");
+        return ResponseException(res,500,"ERROR_EXCEPTION",err);
     }
 }
 const create=async(req,res)=>{
@@ -53,10 +53,10 @@ const create=async(req,res)=>{
             token : await tokenSign(ModelUser),
             user : ModelUser,
         }
-        ResponseOk(res,200,data);
+        return ResponseOk(res,200,data);
     }catch(err){
         console.log(err);
-        ResponseException(res,500,'ERROR_EXCEPTION_CREATE_USER');
+        return ResponseException(res,500,'ERROR_EXCEPTION_CREATE_USER',err);
     }
 }
 const update=async(req,res)=>{
@@ -69,9 +69,9 @@ const update=async(req,res)=>{
         const ModelUser = await user.update(body, {
             where: { id }
         });
-        ResponseOk(res,200,await user.findByPk(id))
+        return ResponseOk(res,200,await user.findByPk(id))
     }catch(err){
-        ResponseException(res,500,'ERROR-EXCEPTION-UPDATED')
+        return ResponseException(res,500,'ERROR-EXCEPTION-UPDATED',err)
     }
 }
 module.exports = {get_all,authenticate,create,update}

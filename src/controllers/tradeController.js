@@ -439,10 +439,13 @@ const atribute = (param) => {
 const get_series_for_business = async (req, res) => {
     try {
         const { ruc, col } = req.body;
-        let attributes = ['ruc', 'trade_business', 'business_name', 'id', 'address', 'ubication', 'license']
+        let attributes = ['ruc', 'trade_business', 'business_name', 'id', 'address', ]
         if (col !== undefined) {
             attributes.push(atribute(col));
-            const SeriesBusiness = await trade.findAll({ where: { ruc }, attributes })
+            const SeriesBusiness = await trade.findAll({ where: { ruc }, attributes, include:[
+                { model: type, as: 'ubication', attributes:['name']},
+                { model: license, as: 'license', attributes:['code_license']}
+            ]})
             return ResponseOk(res, 200, SeriesBusiness);
         }
         return ResponseOk(res, 200, await trade.findAll({ where: { ruc } }));

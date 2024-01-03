@@ -22,6 +22,7 @@ const get_all = async (req, res) => {
                 { model: type, as: 'debtor' },
                 { model: type, as: 'center_charity' },
                 { model: type, as: 'sale_organization' },
+                { model: type, as: 'type_local' }
             ]
         });
         return ResponseOk(res, 200, MyTrade);
@@ -53,6 +54,7 @@ const create = async (req, res) => {
         const { __isNew__: isNewLic, ...objLic } = body.license
         const { __isNew__: isNewUbica, ...objUbic } = body.ubication
         const { __isNew__: isNewCenterCharity, ...objCenterCharity } = body.center_charity
+        const { __isNew__: isNewTypeLocal, ...objTypeLocal } = body.type_local
         //
         const otherObj = {
             sale_organization: { ...objeSale },
@@ -61,7 +63,25 @@ const create = async (req, res) => {
             center: { ...objCent },
             licence: { ...objLic },
             ubication: { ...objUbic },
-            center_charity: { ...objCenterCharity }
+            center_charity: { ...objCenterCharity },
+            type_local: { ...objTypeLocal },
+        }
+        if(isNewTypeLocal){
+            const {id:type_group_id} = await type_group.findOne({where:{code:'TPLOCAL'}})
+            const [{id}] = await type.findCreateFind({
+                where: {
+                    name: objTypeLocal.label,
+                    code: 'TP_LOCAL_NEW',
+                    type_group_id,
+                },
+                defaults: {
+                    code: 'TP_LOCAL_NEW',
+                    name: objTypeLocal.label,
+                    type_group_id,
+                    is_active: true
+                }
+            });
+            otherObj.type_local = {...otherObj.type_local, value:id}
         }
         if (isNewSale) {
             const [{ id }] = await type.findOrCreate({
@@ -237,6 +257,7 @@ const updated = async (req, res) => {
         const { __isNew__: isNewLic, ...objLic } = body.license
         const { __isNew__: isNewUbica, ...objUbic } = body.ubication
         const { __isNew__: isNewCenterCharity, ...objCenterCharity } = body.center_charity
+        const { __isNew__: isNewTypeLocal, ...objTypeLocal } = body.type_local
 
         const otherObj = {
             sale_organization: { ...objeSale },
@@ -245,7 +266,25 @@ const updated = async (req, res) => {
             center: { ...objCent },
             licence: { ...objLic },
             ubication: { ...objUbic },
-            center_charity: { ...objCenterCharity }
+            center_charity: { ...objCenterCharity },
+            type_local: { ...objTypeLocal },
+        }
+        if(isNewTypeLocal){
+            const {id:type_group_id} = await type_group.findOne({where:{code:'TPLOCAL'}})
+            const [{id}] = await type.findCreateFind({
+                where: {
+                    name: objTypeLocal.label,
+                    code: 'TP_LOCAL_NEW',
+                    type_group_id,
+                },
+                defaults: {
+                    code: 'TP_LOCAL_NEW',
+                    name: objTypeLocal.label,
+                    is_active: true,
+                    type_group_id,
+                }
+            });
+            otherObj.type_local = {...otherObj.type_local, value:id}
         }
         if (isNewSale) {
             const [{ id }] = await type.findOrCreate({
@@ -372,6 +411,7 @@ const updated = async (req, res) => {
             center_charity_id: otherObj.center_charity.value,
             licence_id: otherObj.licence.value,
             ubication_id: otherObj.ubication.value,
+            type_local_id: otherObj.type_local.value,
 
             sale_organization: otherObj.sale_organization.label,
             channel: otherObj.channel.label,
@@ -380,7 +420,7 @@ const updated = async (req, res) => {
             center_charity: otherObj.center_charity.label,
             license: ((otherObj.licence.label).split(' '))[0],
             ubication: otherObj.ubication.label,
-
+            type_local: otherObj.type_local.label
         };
         await trade.update(body, { where: { id } });
         if (is_duplicate === true) {
@@ -470,10 +510,15 @@ const exportExcel = async (req, res) => {
                 { model: type, as: 'ubication' },
                 { model: type, as: 'debtor' },
                 { model: type, as: 'center_charity' },
-                { model: type, as: 'sale_organization' }
+                { model: type, as: 'sale_organization' },
+                { model: type, as: 'type_local' }
             ]
         });
         const colum = [
+            {
+                header:'TIPO DE NEGOCIO',
+                key:'type_local'
+            },
             {
                 header: 'RAZON SOCIAL',
                 key: 'business_name',
@@ -577,7 +622,8 @@ const exportExcel = async (req, res) => {
                 channel:row.channel?.name ?? '',
                 sale_organization:row.sale_organization?.name ?? '',
                 debtor:row.debtor?.name ?? '',
-                center_charity:row.center_charity?.name ?? ''
+                center_charity:row.center_charity?.name ?? '',
+                type_local:row.type_local?.name ?? ''
             }
         });
 
@@ -636,6 +682,7 @@ const ImportExcel = async (req, res) => {
                 "RAZON SOCIAL": business_name,
                 RUC:ruc,
                 NEGOCIO:trade_business,
+                "TIPO DE NEGOCIO":type_local,
                 UBICACION:ubication,
                 DIRECCION:address,
                 LICENCIA:license,
@@ -663,7 +710,7 @@ const ImportExcel = async (req, res) => {
                 ubication,address,license,sale_organization,host,
                 channel,sector,debtor,denomination,center,center_charity,
                 ip,anydesk,number_indentifier,attached_code,electronic_series_fe,
-                electronic_series_be,electronic_series_ncf,electronic_series_ncb
+                electronic_series_be,electronic_series_ncf,electronic_series_ncb,type_local
             })
         }
         await trade_logs.sequelize.query('CALL BD_SERIES.USP_LOAD_DATA_FOR_ALL() ')

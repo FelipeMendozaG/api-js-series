@@ -9,8 +9,8 @@ routes.put('/:id',validatorUpdateTrade,updated);
 routes.post('/logs',get_all_logs);
 routes.post('/import/excel', validatorImportTrade, upload.single('fileparam'), ImportExcel);
 routes.post('/import_contact/excel',upload.single('fileparam'),ImportContact);
-routes.post('/get_for_license',get_for_license)
-routes.post('/search/business',get_series_for_business)
+routes.post('/get_for_license',get_for_license);
+routes.post('/search/business',get_series_for_business);
 routes.post('/status/:id',changeStatus);
 routes.post('/export/excel',exportExcel);
 routes.get('/search/:ruc/:serie',get_serie_free)

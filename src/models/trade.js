@@ -132,8 +132,15 @@ const Trade = sequelize.define(
         electronic_series_ncb:{
             type:DataTypes.STRING,
             allowNull:true
-        }
-
+        },
+        type_local_id:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            references:{
+                model:Type,
+                key:'id'
+            }
+        },
     },
     {
         timestamps:true,
@@ -148,6 +155,7 @@ Trade.belongsTo(Type,{foreignKey:'ubication_id', as:'ubication'});
 Trade.belongsTo(Type,{foreignKey:'debtor_id',as:'debtor'});
 Trade.belongsTo(Type,{foreignKey:'center_charity_id',as:'center_charity'})
 Trade.belongsTo(Type,{foreignKey:'sale_organization_id',as:'sale_organization'})
+Trade.belongsTo(Type,{foreignKey:'type_local_id',as:'type_local'})
 Trade.belongsTo(Business,{foreignKey:'ruc',as:'business_object'});
 
 module.exports = Trade;

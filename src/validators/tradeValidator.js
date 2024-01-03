@@ -46,6 +46,9 @@ const validatorCreateTrade = [
     check("attached_code")
         .exists().withMessage("El valor de attached_code debe existir")
         .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("type_local")
+        .exists().withMessage("El valor de tipo de local")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
     check('electronic_series_fe')
         .exists().withMessage('Ingresar serie Electronica FE')
         .notEmpty().withMessage("La serie electronica de la factura no puede estar vacio")
@@ -166,6 +169,9 @@ const validatorUpdateTrade = [
         .notEmpty().withMessage("El [] no puede estar vacio"),
     check("attached_code")
         .exists().withMessage("El valor de attached_code debe existir")
+        .notEmpty().withMessage("El [] no puede estar vacio"),
+    check("type_local")
+        .exists().withMessage("El valor de tipo de local")
         .notEmpty().withMessage("El [] no puede estar vacio"),
     check('electronic_series_fe')
         .exists().withMessage('Ingresar serie Electronica FE')

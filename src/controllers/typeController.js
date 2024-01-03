@@ -74,7 +74,15 @@ const get_type_contact = async(req,res)=>{
         return ResponseException(res,500,'ERROR_TYPE_CONTACT',err);
     }
 }
+const get_type_local = async(req,res)=>{
+    try{
+        const TypeLocal = await type.findAll({include:[{model:type_group,where:{code:'TPLOCAL'}}]})
+        return ResponseOk(res,200,TypeLocal)
+    }catch(err){
+        return ResponseException(res,500,'ERROR_TYPE_CONTACT',err);
+    }
+}
 module.exports = {
     get_all, get_ubication, get_document, get_debtor, get_sale_organization, get_center, get_channel, get_center_charity,
-    get_type_contact
+    get_type_contact, get_type_local
 }

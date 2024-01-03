@@ -104,6 +104,10 @@ const TradeImport = sequelize.define(
         electronic_series_ncb:{
             type:DataTypes.STRING,
             allowNull:true
+        },
+        type_local:{
+            type:DataTypes.STRING,
+            allowNull:true
         }
     },
     {

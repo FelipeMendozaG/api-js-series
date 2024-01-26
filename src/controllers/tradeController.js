@@ -488,6 +488,9 @@ const get_series_for_business = async (req, res) => {
             ]})
             return ResponseOk(res, 200, SeriesBusiness);
         }
+        if(ruc==undefined){
+            return ResponseOk(res,200,await trade.findAll({}));
+        }
         return ResponseOk(res, 200, await trade.findAll({ where: { ruc } }));
     } catch (err) {
         console.log(err);
